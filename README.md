@@ -26,7 +26,7 @@ A sleek, modern dark theme for SoundCloud.com, inspired by the SoundCloud Androi
 
 **Option 1: One-click installation**
 
-- [Click here to install](https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud-theme.user.js)
+- [Click here to install](https://github.com/purr/dark-soundcloud/raw/refs/heads/main/soundcloud-dark-theme.user.js)
 
 **Option 2: Manual installation**
 
