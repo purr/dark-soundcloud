@@ -32,7 +32,7 @@ A sleek, modern dark theme for SoundCloud.com, inspired by the SoundCloud Androi
 
 1. Open your userscript manager dashboard
 2. Create a new script
-3. Copy and paste the contents of [dark-soundcloud-theme.user.js](dark-soundcloud-theme.user.js)
+3. Copy and paste the contents of [dark-soundcloud-theme.user.js](soundcloud-dark-theme.user.js)
 4. Save the script
 
 ## How It Works
