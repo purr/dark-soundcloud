@@ -57,10 +57,56 @@
         childList: true,
         subtree: true,
       });
+
+      // Remove Artist Tools iframe
+      removeArtistToolsIframe();
     } else {
       // If document isn't ready yet, try again in a moment
       setTimeout(startObserver, 10);
     }
+  }
+
+  // Function to remove Artist Tools iframe
+  function removeArtistToolsIframe() {
+    // Initial removal
+    const removeIframes = () => {
+      const iframes = document.querySelectorAll(
+        '.webiEmbeddedModuleIframe[title="Artist tools"]'
+      );
+      if (iframes && iframes.length > 0) {
+        iframes.forEach((iframe) => {
+          // Try to find and remove the parent container too
+          let parent = iframe.parentElement;
+          while (
+            parent &&
+            !parent.classList.contains("sidebarModule") &&
+            parent !== document.body
+          ) {
+            parent = parent.parentElement;
+          }
+
+          if (parent && parent.classList.contains("sidebarModule")) {
+            parent.remove();
+          } else {
+            iframe.remove();
+          }
+        });
+      }
+    };
+
+    // Run immediately
+    removeIframes();
+
+    // Set up an observer specifically for the Artist Tools iframe
+    const iframeObserver = new MutationObserver(() => {
+      removeIframes();
+    });
+
+    // Start observing for iframe additions
+    iframeObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
   }
 
   // Start the observer
@@ -1275,101 +1321,90 @@ input.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder,
       )
   );
 
-  // Add a function to continuously enforce our styles for specific elements
+  // Function to enforce styles with improved performance
   function enforceStyles() {
     try {
-      // Force sidebar title to be white
-      const sidebarTitles = document.querySelectorAll(
-        ".sidebarHeader__actualTitle, .sidebarHeader__actualTitle__webi__style"
-      );
-      if (sidebarTitles && sidebarTitles.length) {
-        sidebarTitles.forEach((element) => {
-          if (element) {
-            element.style.setProperty("color", "#ffffff", "important");
-            element.style.setProperty("text-shadow", "none", "important");
-            element.style.setProperty(
-              "-webkit-text-fill-color",
-              "#ffffff",
-              "important"
-            );
-          }
-        });
-      }
-
-      // Set light grey for refresh text
-      const refreshTexts = document.querySelectorAll(
-        ".sidebarHeader__more__webi_style"
-      );
-      if (refreshTexts && refreshTexts.length) {
-        refreshTexts.forEach((element) => {
-          if (element) {
-            element.style.setProperty("color", "#a0a0a0", "important");
-            element.style.setProperty("text-shadow", "none", "important");
-            element.style.setProperty(
-              "-webkit-text-fill-color",
-              "#a0a0a0",
-              "important"
-            );
-          }
-        });
-      }
-
-      // Set very light grey for artist usernames
-      const artistUsernames = document.querySelectorAll(
-        ".artistShortcutTile__username"
-      );
-      if (artistUsernames && artistUsernames.length) {
-        artistUsernames.forEach((element) => {
-          if (element) {
-            element.style.setProperty("color", "#f0f0f0", "important");
-            element.style.setProperty("text-shadow", "none", "important");
-            element.style.setProperty(
-              "-webkit-text-fill-color",
-              "#f0f0f0",
-              "important"
-            );
-          }
-        });
-      }
-
-      // Set placeholder color for textfields
-      const textfields = document.querySelectorAll(
-        ".textfield__input.sc-input.sc-input-medium"
-      );
-      if (textfields && textfields.length) {
-        textfields.forEach((element) => {
-          if (element) {
-            // Use a custom attribute to set placeholder color
-            element.setAttribute("placeholder-color", "#bdbdbd");
-
-            // For browsers that support it, we can try to set the placeholder color directly
-            if (
-              window.CSS &&
-              window.CSS.supports &&
-              window.CSS.supports("selector(::placeholder)")
-            ) {
-              // Modern browsers
-              const styleId =
-                "placeholder-style-" +
-                Math.random().toString(36).substring(2, 15);
-              const existingStyle = document.getElementById(styleId);
-
-              if (!existingStyle) {
-                const style = document.createElement("style");
-                style.id = styleId;
-                element.setAttribute("data-placeholder-id", styleId);
-                style.textContent = `
-                  [data-placeholder-id="${styleId}"]::placeholder { color: #bdbdbd !important; opacity: 1 !important; }
-                  [data-placeholder-id="${styleId}"]::-webkit-input-placeholder { color: #bdbdbd !important; opacity: 1 !important; }
-                  [data-placeholder-id="${styleId}"]::-moz-placeholder { color: #bdbdbd !important; opacity: 1 !important; }
-                  [data-placeholder-id="${styleId}"]::-ms-input-placeholder { color: #bdbdbd !important; opacity: 1 !important; }
-                `;
-                (document.head || document.body).appendChild(style);
-              }
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        // Force sidebar title to be white - use more efficient selectors
+        document
+          .querySelectorAll(
+            ".sidebarHeader__actualTitle, .sidebarHeader__actualTitle__webi__style"
+          )
+          .forEach((element) => {
+            if (element && !element.hasAttribute("style-enforced")) {
+              element.style.setProperty("color", "#ffffff", "important");
+              element.style.setProperty("text-shadow", "none", "important");
+              element.style.setProperty(
+                "-webkit-text-fill-color",
+                "#ffffff",
+                "important"
+              );
+              element.setAttribute("style-enforced", "true");
             }
-          }
-        });
-      }
+          });
+
+        // Set light grey for refresh text
+        document
+          .querySelectorAll(".sidebarHeader__more__webi_style")
+          .forEach((element) => {
+            if (element && !element.hasAttribute("style-enforced")) {
+              element.style.setProperty("color", "#a0a0a0", "important");
+              element.style.setProperty("text-shadow", "none", "important");
+              element.style.setProperty(
+                "-webkit-text-fill-color",
+                "#a0a0a0",
+                "important"
+              );
+              element.setAttribute("style-enforced", "true");
+            }
+          });
+
+        // Set very light grey for artist usernames
+        document
+          .querySelectorAll(".artistShortcutTile__username")
+          .forEach((element) => {
+            if (element && !element.hasAttribute("style-enforced")) {
+              element.style.setProperty("color", "#f0f0f0", "important");
+              element.style.setProperty("text-shadow", "none", "important");
+              element.style.setProperty(
+                "-webkit-text-fill-color",
+                "#f0f0f0",
+                "important"
+              );
+              element.setAttribute("style-enforced", "true");
+            }
+          });
+
+        // Set placeholder color for textfields - more efficient implementation
+        if (!document.getElementById("sc-dark-placeholders")) {
+          const style = document.createElement("style");
+          style.id = "sc-dark-placeholders";
+          style.textContent = `
+            .textfield__input.sc-input.sc-input-medium::placeholder,
+            input.textfield__input.sc-input.sc-input-medium::placeholder { 
+              color: #bdbdbd !important; 
+              opacity: 1 !important; 
+            }
+            .textfield__input.sc-input.sc-input-medium::-webkit-input-placeholder { 
+              color: #bdbdbd !important; 
+              opacity: 1 !important; 
+            }
+            .textfield__input.sc-input.sc-input-medium::-moz-placeholder { 
+              color: #bdbdbd !important; 
+              opacity: 1 !important; 
+            }
+            .textfield__input.sc-input.sc-input-medium::-ms-input-placeholder { 
+              color: #bdbdbd !important; 
+              opacity: 1 !important; 
+            }
+          `;
+          (document.head || document.body).appendChild(style);
+        }
+
+        // Remove Artist Tools iframe
+        removeArtistToolsIframe();
+      });
     } catch (e) {
       console.warn("Error in enforceStyles: " + e.message);
     }

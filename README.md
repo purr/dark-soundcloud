@@ -26,13 +26,13 @@ A sleek, modern dark theme for SoundCloud.com, inspired by the SoundCloud Androi
 
 **Option 1: One-click installation**
 
-- [Click here to install](https://github.com/purr/soundcloud-dark/raw/main/soundcloud-dark-theme.user.js)
+- [Click here to install](https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud-theme.user.js)
 
 **Option 2: Manual installation**
 
 1. Open your userscript manager dashboard
 2. Create a new script
-3. Copy and paste the contents of [soundcloud-dark-theme.user.js](soundcloud-dark-theme.user.js)
+3. Copy and paste the contents of [dark-soundcloud-theme.user.js](dark-soundcloud-theme.user.js)
 4. Save the script
 
 ## How It Works
@@ -71,7 +71,7 @@ While this script is designed to work without configuration, advanced users can 
 
 **Issue**: Some elements appear in light mode
 
-- **Solution**: Try refreshing the page. If the issue persists, please [open an issue](https://github.com/purr/soundcloud-dark/issues).
+- **Solution**: Try refreshing the page. If the issue persists, please [open an issue](https://github.com/purr/dark-soundcloud/issues).
 
 **Issue**: Fonts don't look right
 
