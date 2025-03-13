@@ -6,8 +6,8 @@
 // @namespace    https://github.com/purr/dark-soundcloud
 // @homepage     https://github.com/purr/dark-soundcloud
 // @supportURL   https://github.com/purr/dark-soundcloud/issues
-// @updateURL    https://github.com/purr/dark-soundcloud/raw/main/soundcloud-dark-theme.user.js
-// @downloadURL  https://github.com/purr/dark-soundcloud/raw/main/soundcloud-dark-theme.user.js
+// @updateURL    https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud.user.js
+// @downloadURL  https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud.user.js
 // @match        *://soundcloud.com/*
 // @match        *://*.soundcloud.com/*
 // @grant        GM_addStyle
