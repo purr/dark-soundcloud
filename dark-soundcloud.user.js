@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Modern Design and Dark Theme for SoundCloud
-// @version      0.27.0
+// @version      0.28.0
 // @description  A modern design and dark theme for SoundCloud.com, inspired by the SoundCloud Android app.
 // @author       purr
 // @namespace    https://github.com/purr/dark-soundcloud
@@ -31,11 +31,20 @@
     node.classList.add("m-dark");
   }
 
-  // Function to remove Artist Tools iframe
-  function removeArtistToolsIframe() {
-    const iframes = document.querySelectorAll(
-      '.webiEmbeddedModuleIframe[title="Artist tools"]'
-    );
+  // Function to remove unwanted iframes (Artist Tools and Track Insights)
+  function removeUnwantedIframes() {
+    // Define the iframe selectors to remove
+    const selectors = [
+      '.webiEmbeddedModuleIframe[title="Artist tools"]',
+      '.webiEmbeddedModuleIframe[title="Track insights"]',
+    ];
+
+    // Create a combined selector
+    const combinedSelector = selectors.join(", ");
+
+    // Find all matching iframes
+    const iframes = document.querySelectorAll(combinedSelector);
+
     if (iframes && iframes.length > 0) {
       iframes.forEach((iframe) => {
         // Try to find and remove the parent container too
@@ -138,8 +147,8 @@
           (document.head || document.body).appendChild(style);
         }
 
-        // Remove Artist Tools iframe
-        removeArtistToolsIframe();
+        // Remove unwanted iframes (Artist Tools and Track Insights)
+        removeUnwantedIframes();
       });
     } catch (e) {
       console.warn("Error in enforceStyles: " + e.message);
