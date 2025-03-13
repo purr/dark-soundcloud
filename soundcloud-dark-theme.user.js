@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Modern Design and Dark Theme for SoundCloud (Optimized)
-// @version      0.26.0
-// @description  A lightweight dark theme for SoundCloud.com
+// @name         Modern Design and Dark Theme for SoundCloud
+// @version      0.27.0
+// @description  A modern design and dark theme for SoundCloud.com, inspired by the SoundCloud Android app.
 // @author       purr
 // @namespace    https://github.com/purr/dark-soundcloud
 // @homepage     https://github.com/purr/dark-soundcloud
@@ -13,299 +13,381 @@
 // @grant        GM_addStyle
 // @run-at       document-start
 // @license      MIT
+// @resource     FONT_500 https://github.com/purr/dark-soundcloud/raw/main/fonts/soundcloud-sans-500.woff2
+// @resource     FONT_700 https://github.com/purr/dark-soundcloud/raw/main/fonts/soundcloud-sans-700.woff2
+// @resource     FONT_900 https://github.com/purr/dark-soundcloud/raw/main/fonts/soundcloud-sans-900.woff2
+// @resource     CSS https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud.css
+// @grant        GM_getResourceURL
+// @grant        GM_getResourceText
 // ==/UserScript==
 
 (function () {
   "use strict";
 
-  // Single observer to handle all DOM mutations
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.addedNodes.length) {
-        // Check for menus that need to be dark
-        for (const node of mutation.addedNodes) {
-          if (node.nodeType === 1) {
-            // Element node
-            if (
-              node.classList &&
-              (node.classList.contains("m-light") ||
-                node.classList.contains("m-dark"))
-            ) {
-              // Set menu to dark mode
-              node.classList.remove("m-light");
-              node.classList.add("m-dark");
-            }
-
-            // Remove artist tools iframe if found
-            if (node.tagName === "IFRAME" && node.title === "Artist tools") {
-              let parent = node.parentElement;
-              while (
-                parent &&
-                !parent.classList.contains("sidebarModule") &&
-                parent !== document.body
-              ) {
-                parent = parent.parentElement;
-              }
-
-              if (parent && parent.classList.contains("sidebarModule")) {
-                parent.remove();
-              } else {
-                node.remove();
-              }
-            }
-          }
-        }
-      }
-    }
-  });
-
-  // Start the observer when document is ready
-  if (document.documentElement) {
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-    });
-  } else {
-    document.addEventListener("DOMContentLoaded", () => {
-      observer.observe(document.documentElement, {
-        childList: true,
-        subtree: true,
-      });
-    });
+  // Makes a SoundCloud menu dark using the built-in styles
+  function setMenuDarkMode(node) {
+    // Always use dark mode
+    node.classList.remove("m-light");
+    node.classList.add("m-dark");
   }
 
-  // Apply dark mode class to root
+  // Function to remove Artist Tools iframe
+  function removeArtistToolsIframe() {
+    const iframes = document.querySelectorAll(
+      '.webiEmbeddedModuleIframe[title="Artist tools"]'
+    );
+    if (iframes && iframes.length > 0) {
+      iframes.forEach((iframe) => {
+        // Try to find and remove the parent container too
+        let parent = iframe.parentElement;
+        while (
+          parent &&
+          !parent.classList.contains("sidebarModule") &&
+          parent !== document.body
+        ) {
+          parent = parent.parentElement;
+        }
+
+        if (parent && parent.classList.contains("sidebarModule")) {
+          parent.remove();
+        } else {
+          iframe.remove();
+        }
+      });
+    }
+  }
+
+  // Function to enforce styles with improved performance
+  function enforceStyles() {
+    try {
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        // Force sidebar title to be white - use more efficient selectors
+        document
+          .querySelectorAll(
+            ".sidebarHeader__actualTitle, .sidebarHeader__actualTitle__webi__style"
+          )
+          .forEach((element) => {
+            if (element && !element.hasAttribute("style-enforced")) {
+              element.style.setProperty("color", "#ffffff", "important");
+              element.style.setProperty("text-shadow", "none", "important");
+              element.style.setProperty(
+                "-webkit-text-fill-color",
+                "#ffffff",
+                "important"
+              );
+              element.setAttribute("style-enforced", "true");
+            }
+          });
+
+        // Set light grey for refresh text
+        document
+          .querySelectorAll(".sidebarHeader__more__webi_style")
+          .forEach((element) => {
+            if (element && !element.hasAttribute("style-enforced")) {
+              element.style.setProperty("color", "#a0a0a0", "important");
+              element.style.setProperty("text-shadow", "none", "important");
+              element.style.setProperty(
+                "-webkit-text-fill-color",
+                "#a0a0a0",
+                "important"
+              );
+              element.setAttribute("style-enforced", "true");
+            }
+          });
+
+        // Set very light grey for artist usernames
+        document
+          .querySelectorAll(".artistShortcutTile__username")
+          .forEach((element) => {
+            if (element && !element.hasAttribute("style-enforced")) {
+              element.style.setProperty("color", "#f0f0f0", "important");
+              element.style.setProperty("text-shadow", "none", "important");
+              element.style.setProperty(
+                "-webkit-text-fill-color",
+                "#f0f0f0",
+                "important"
+              );
+              element.setAttribute("style-enforced", "true");
+            }
+          });
+
+        // Set placeholder color for textfields - more efficient implementation
+        if (!document.getElementById("sc-dark-placeholders")) {
+          const style = document.createElement("style");
+          style.id = "sc-dark-placeholders";
+          style.textContent = `
+            .textfield__input.sc-input.sc-input-medium::placeholder,
+            input.textfield__input.sc-input.sc-input-medium::placeholder { 
+              color: #bdbdbd !important; 
+              opacity: 1 !important; 
+            }
+            .textfield__input.sc-input.sc-input-medium::-webkit-input-placeholder { 
+              color: #bdbdbd !important; 
+              opacity: 1 !important; 
+            }
+            .textfield__input.sc-input.sc-input-medium::-moz-placeholder { 
+              color: #bdbdbd !important; 
+              opacity: 1 !important; 
+            }
+            .textfield__input.sc-input.sc-input-medium::-ms-input-placeholder { 
+              color: #bdbdbd !important; 
+              opacity: 1 !important; 
+            }
+          `;
+          (document.head || document.body).appendChild(style);
+        }
+
+        // Remove Artist Tools iframe
+        removeArtistToolsIframe();
+      });
+    } catch (e) {
+      console.warn("Error in enforceStyles: " + e.message);
+    }
+  }
+
+  // Function to apply dark mode
+  function jtcScApplyDark() {
+    // Apply dark mode to menus
+    if (document.querySelectorAll) {
+      document
+        .querySelectorAll(".m-light, .m-dark")
+        .forEach((node) => setMenuDarkMode(node));
+    }
+  }
+
+  // Set dark mode on load - MODIFIED to always use dark mode
   function applyDarkMode() {
     if (document.documentElement) {
       document.documentElement.classList.add("jtc-sc-dark");
+      jtcScApplyDark();
+    } else {
+      // If document isn't ready yet, try again in a moment
+      setTimeout(applyDarkMode, 10);
     }
   }
 
-  // Apply dark mode immediately and on DOM ready
+  // Apply dark mode
   applyDarkMode();
-  document.addEventListener("DOMContentLoaded", applyDarkMode);
 
-  // Insert CSS using GM_addStyle or fallback
+  // Remove the toggle dark mode functionality
+  window.jtcScToggleDark = function () {
+    // Do nothing - dark mode only
+    console.log("This version is dark mode only");
+  };
+
+  // Load fonts with error handling
+  function loadFont(weight, url) {
+    try {
+      const fontFace = new FontFace("SoundCloudSans", `url(${url})`, {
+        style: "normal",
+        stretch: "normal",
+        weight: weight,
+      });
+
+      fontFace
+        .load()
+        .then(() => document.fonts.add(fontFace))
+        .catch((err) =>
+          console.warn(
+            `Failed to load SoundCloud Sans ${weight}: ${err.message}`
+          )
+        );
+    } catch (e) {
+      console.warn(
+        `Error creating font face for SoundCloud Sans ${weight}: ${e.message}`
+      );
+    }
+  }
+
+  // Load fonts with error handling
+  if (typeof FontFace !== "undefined" && document.fonts) {
+    // Define font URLs as variables
+    const FONT_BASE_URL =
+      "https://github.com/purr/dark-soundcloud/raw/main/fonts/";
+    const FONT_URLS = {
+      500: FONT_BASE_URL + "soundcloud-sans-500.woff2",
+      700: FONT_BASE_URL + "soundcloud-sans-700.woff2",
+      900: FONT_BASE_URL + "soundcloud-sans-900.woff2",
+    };
+
+    // Try to use GM_getResourceURL if available for local font files
+    if (typeof GM_getResourceURL !== "undefined") {
+      try {
+        loadFont(500, GM_getResourceURL("FONT_500"));
+        loadFont(700, GM_getResourceURL("FONT_700"));
+        loadFont(900, GM_getResourceURL("FONT_900"));
+      } catch (e) {
+        console.warn("Error loading fonts from resources: " + e.message);
+        // Fallback to GitHub repo
+        loadFont(500, FONT_URLS[500]);
+        loadFont(700, FONT_URLS[700]);
+        loadFont(900, FONT_URLS[900]);
+      }
+    } else {
+      // Fallback to GitHub repo if GM_getResourceURL is not available
+      loadFont(500, FONT_URLS[500]);
+      loadFont(700, FONT_URLS[700]);
+      loadFont(900, FONT_URLS[900]);
+    }
+  }
+
+  // Insert CSS at the very end of the document
+  // so it can safely override SoundCloud styles without !important.
   function addCss(cssString) {
     if (typeof GM_addStyle !== "undefined") {
+      // Use Tampermonkey/Greasemonkey's built-in function if available
       GM_addStyle(cssString);
     } else {
-      const style = document.createElement("style");
-      style.textContent = cssString;
-      (document.head || document.documentElement).appendChild(style);
+      // Fallback to creating a style element
+      try {
+        const newCss = document.createElement("style");
+        newCss.type = "text/css";
+        newCss.textContent = cssString;
+
+        // Try to append to head first (for document-start execution)
+        if (document.head) {
+          document.head.appendChild(newCss);
+        }
+        // Fallback to body if head is not available yet
+        else if (document.body) {
+          document.body.appendChild(newCss);
+        }
+        // If neither is available, wait for DOM to be ready
+        else {
+          document.addEventListener("DOMContentLoaded", function () {
+            (document.head || document.body).appendChild(newCss);
+          });
+        }
+      } catch (e) {
+        console.warn("Failed to add CSS: " + e.message);
+      }
     }
   }
 
-  // Core CSS variables
-  addCss(`
-:root {
-  --jtc-sc-root-text: #ffffff;
-  --jtc-sc-bg: #000000;
-  --jtc-sc-header: #111;
-  --jtc-sc-header-active: #0c0c0c;
-  --jtc-sc-header-border: #1a1a1a;
-  --jtc-sc-border-light: #212121;
-  --jtc-sc-tag-bg: #262626;
-  --jtc-sc-tag-hover-bg: #424242;
-  --jtc-sc-light-text: #bfbfbf;
-  --jtc-sc-btn-main: #ffffff;
-  --jtc-sc-btn-main-text: #000000;
-  --jtc-sc-btn: #272727;
-  --jtc-sc-tile: #0a0a0a;
-  --jtc-sc-btn-hover: #373737;
-  --jtc-sc-text-verylight: #707070;
-  --jtc-sc-almost-root-text: #e8e8e8;
-  --jtc-sc-header-search: #242424;
-  --jtc-sc-border: #585858;
-  --jtc-sc-whiteout: #000000e6;
-  --jtc-sc-block: #1a1a1a;
-  --jtc-sc-bar: #111111;
-  --jtc-sc-popup: #111111;
-}
+  // Load CSS from resource
+  function loadCSS() {
+    try {
+      if (typeof GM_getResourceText !== "undefined") {
+        // Get CSS from resource
+        const css = GM_getResourceText("CSS");
+        if (css) {
+          // Process the CSS to add !important to all rules
+          const processedCSS = css
+            .replaceAll(";\n", " !important;\n")
+            .replaceAll(":\n", ";\n")
+            .replaceAll(
+              "$BTN_EXCLUDE",
+              ":not(.reportCopyright):not(.hintButton):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__follow):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__like):not(.sc-button-nostyle):not(.sc-button-next):not(.sc-button-pause):not(.sc-button-play):not(.sc-button-prev):not(.sc-button-blocked)"
+            );
 
-:root.jtc-sc-dark {
-  color-scheme: dark;
-}
+          // Add the processed CSS
+          addCss(processedCSS);
+        } else {
+          console.warn("Failed to load CSS from resource");
+          loadCSSFromRemote();
+        }
+      } else {
+        // Fallback to loading from remote URL
+        loadCSSFromRemote();
+      }
+    } catch (e) {
+      console.warn("Error loading CSS from resource: " + e.message);
+      loadCSSFromRemote();
+    }
+  }
 
-/* Essential dark mode styles */
-body {
-  color: var(--jtc-sc-root-text) !important;
-  background: var(--jtc-sc-bg) !important;
-}
+  // Fallback function to load CSS from remote URL
+  function loadCSSFromRemote() {
+    try {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.type = "text/css";
+      link.href =
+        "https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud.css";
+      document.head.appendChild(link);
+    } catch (e) {
+      console.warn("Error loading CSS from remote: " + e.message);
+    }
+  }
 
-/* Core text colors */
-.sc-classic .sidebarHeader__title,
-.sc-text,
-button,
-input,
-select,
-textarea,
-.sc-classic .insightsSidebarModule__title,
-.sc-classic .headerMenu__link:not(.m-highlight),
-.sc-classic .headerMenu__link:not(.m-highlight):focus,
-.sc-classic .headerMenu__link:not(.m-highlight):hover,
-.sc-classic .g-nav-item:not(.active) > .g-nav-link,
-a.sc-link-dark,
-.sc-type-large,
-.sc-classic .mixedSelectionModule__titleText,
-.sc-classic .compactTrackListItem__number,
-.sc-classic .compactTrackListItem__trackTitle,
-.sc-classic .blockCheckbox__title,
-.sc-classic .playbackSoundBadge__titleLink,
-.sc-classic .playbackSoundBadge__titleLink:visited,
-.commentItem__body,
-.commentItem__creatorLink, .commentItem__creatorLink:hover, .commentItem__creatorLink:visited, 
-.commentItem__username, .commentItem__usernameLink, .commentItem__usernameLink:hover, 
-.commentItem__usernameLink:visited,
-.commentItem__replyButton, .commentItem__replyButton:hover, .commentItem__replyButton:visited {
-  color: var(--jtc-sc-root-text) !important;
-}
+  // Load the CSS
+  loadCSS();
 
-/* Secondary text colors */
-.sc-type-light:not(.systemPlaylistBannerItem),
-a.sc-link-light,
-.sc-classic .soundTitle__uploadTime,
-.sc-classic .compactTrackListItem__user,
-.sc-ministats-small:not(.sc-ministats-inverted),
-a.sc-link-verylight,
-.sc-classic .soundContext__line,
-.sc-classic .playbackTimeline__duration,
-.sc-classic .notificationBadge__main,
-.commentItem__createdAt, .commentItem__separator, .commentItem__timestamp,
-.sc-classic .blockCheckbox,
-.sc-text-light {
-  color: var(--jtc-sc-light-text) !important;
-}
+  // Unified MutationObserver to handle all DOM changes
+  const unifiedObserver = new MutationObserver((mutations) => {
+    let shouldEnforceStyles = false;
+    let hasMenuChanges = false;
 
-/* Background colors */
-.sc-classic .header,
-.sc-classic .g-modal-section,
-.sc-classic .moreActions,
-.sc-classic .headerMenu,
-.sc-classic .dropdownContent__container,
-.sc-classic .queue,
-.sc-classic .queue__itemWrapper,
-.sc-classic .queue__itemsHeight,
-.sc-classic .modal__modal,
-.sc-classic .dialog,
-.sc-classic .dialog__arrow,
-.sc-classic .playControls__bg,
-.sc-classic .playControls__inner,
-.sc-classic .volume__sliderWrapper {
-  background-color: var(--jtc-sc-popup) !important;
-}
+    // Process mutations to check what needs to be handled
+    mutations.forEach(({ addedNodes, target, type, attributeName }) => {
+      // Check for added nodes that need dark mode
+      if (addedNodes && addedNodes.length) {
+        addedNodes.forEach((node) => {
+          // Handle menu dark mode
+          if (
+            node.nodeType === 1 &&
+            (node.classList?.contains("m-light") ||
+              node.classList?.contains("m-dark"))
+          ) {
+            setMenuDarkMode(node);
+            hasMenuChanges = true;
+          }
 
-.sc-classic .sound__soundActions,
-.sc-classic .listenContent__inner,
-.sc-classic .l-fixed-top-one-column > .l-top,
-.sc-classic .searchTitle,
-.sc-classic .commentForm__wrapper,
-.sc-classic .profileUploadFooter,
-.sc-classic .trackManager__upsellWrapper,
-.sc-classic .conversation__actions,
-.sc-classic .commentFormDisabled,
-.sc-background-white {
-  background-color: var(--jtc-sc-bg) !important;
-}
+          // Any added node might need style enforcement
+          shouldEnforceStyles = true;
+        });
+      }
 
-/* Sidebar header titles - high specificity */
-.sidebarHeader__actualTitle,
-.sidebarHeader__actualTitle__webi__style,
-.sc-classic .sidebarHeader__actualTitle__webi__style {
-  color: #ffffff !important;
-  text-shadow: none !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
+      // Check for attribute changes that might need style enforcement
+      if (
+        type === "attributes" &&
+        (attributeName === "style" || attributeName === "class")
+      ) {
+        shouldEnforceStyles = true;
+      }
+    });
 
-/* Buttons */
-.sc-button:not(.reportCopyright):not(.hintButton):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__follow):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__like):not(.sc-button-nostyle):not(.sc-button-next):not(.sc-button-pause):not(.sc-button-play):not(.sc-button-prev):not(.sc-button-blocked) {
-  border: none !important;
-  background-color: var(--jtc-sc-btn) !important;
-  color: var(--jtc-sc-root-text) !important;
-  font-weight: 400 !important;
-  border-radius: 5px !important;
-}
+    // Throttle style enforcement to avoid performance issues
+    if (shouldEnforceStyles) {
+      if (unifiedObserver.timeout) {
+        clearTimeout(unifiedObserver.timeout);
+      }
+      unifiedObserver.timeout = setTimeout(enforceStyles, 100);
+    }
 
-.sc-button:hover:not(.reportCopyright):not(.hintButton):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__follow):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__like):not(.sc-button-nostyle):not(.sc-button-next):not(.sc-button-pause):not(.sc-button-play):not(.sc-button-prev):not(.sc-button-blocked) {
-  background-color: var(--jtc-sc-btn-hover) !important;
-}
+    // Apply dark mode if menu changes were detected
+    if (hasMenuChanges) {
+      jtcScApplyDark();
+    }
+  });
 
-/* Form elements */
-input,
-select,
-textarea {
-  background-color: var(--jtc-sc-bg) !important;
-  border-color: var(--jtc-sc-border) !important;
-}
+  // Function to start the unified observer
+  function startUnifiedObserver() {
+    if (document.documentElement) {
+      // Start observing the document with the configured parameters
+      unifiedObserver.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["style", "class"],
+      });
 
-.g-dark input[type="password"],
-.g-dark input[type="search"],
-.g-dark input[type="text"],
-.g-dark select,
-.g-dark textarea {
-  background-color: var(--jtc-sc-header-search) !important;
-}
+      // Initial enforcement of styles and removal of iframes
+      enforceStyles();
+    } else {
+      // If document isn't ready yet, try again in a moment
+      setTimeout(startUnifiedObserver, 10);
+    }
+  }
 
-/* Hover states */
-.sc-classic .compactTrackListItem.clickToPlay.active,
-.sc-classic .compactTrackListItem.clickToPlay:focus,
-.sc-classic .compactTrackListItem.clickToPlay:hover,
-.sc-classic .compactTrackList__moreLink:focus,
-.sc-classic .compactTrackList__moreLink:hover,
-.sc-classic .inboxItem.active,
-.sc-classic .inboxItem.unread,
-.sc-classic .inboxItem:focus,
-.sc-classic .inboxItem:hover,
-.sc-classic .trackItem.active,
-.sc-classic .trackItem.hover,
-.sc-classic .queueItemView.m-active,
-.sc-classic .queueItemView:hover {
-  background-color: var(--jtc-sc-btn-hover) !important;
-}
+  // Start the unified observer
+  startUnifiedObserver();
 
-/* Filter adjustments */
-.sc-classic .profileMenu.m-dark .headerMenu__link:after,
-.sc-classic .g-nav-item:not(.active) .g-nav-link,
-.sc-classic .playControls__elements .playControls__control .shuffleControl:not(.m-shuffling),
-.sc-classic .playControls__elements .playControls__control .repeatControl.m-none,
-.sc-classic .playControls__elements .playControls__control.playControl,
-.sc-classic .playControls__elements .playControls__control.skipControl,
-.sc-classic .volume__button,
-.sc-classic .playbackSoundBadge__follow:not(.sc-button-selected),
-.sc-classic .playbackSoundBadge__like:not(.sc-button-selected),
-.sc-classic .queueItemView__more.sc-button-small:before,
-.sc-classic .queueItemView__like:not(.sc-button-selected):before,
-.sidebarHeader__icon {
-  filter: brightness(100) grayscale(1) !important;
-}
-
-.sc-classic .loading,
-.sc-classic .featureHeader__closeButton, 
-.sc-classic .g-button-remove,
-.sc-classic .queue__hide {
-  filter: invert(1) !important;
-}
-
-/* Placeholder text */
-.textfield__input.sc-input.sc-input-medium::placeholder,
-input.textfield__input.sc-input.sc-input-medium::placeholder,
-.textfield__input.sc-input.sc-input-medium::-webkit-input-placeholder,
-.textfield__input.sc-input.sc-input-medium::-moz-placeholder,
-.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder {
-  color: #bdbdbd !important;
-  opacity: 1 !important;
-}
-
-/* Border radius for artwork */
-.soundBadge__artwork .sc-artwork,
-.trackItem__image .sc-artwork,
-.sound__coverArt,
-.playableTile__artwork,
-.listenNetworkInfo__imageLink .sc-artwork,
-.selectionPlaylistBanner__artwork,
-.sc-classic .fullHero__artwork {
-  border-radius: 6px !important;
-  overflow: hidden !important;
-}
-`);
+  // Clean up observer if page is unloaded
+  window.addEventListener("unload", function () {
+    if (unifiedObserver) {
+      unifiedObserver.disconnect();
+    }
+  });
 })();
