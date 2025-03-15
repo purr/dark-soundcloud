@@ -37,6 +37,7 @@
       '.webiEmbeddedModuleIframe[title="Artist tools"], .webiEmbeddedModuleIframe[title="Track insights"], .webiEmbeddedModule',
     STYLE_ENFORCED:
       '[style-enforced="true"], [bg-fixed="true"], [text-fixed="true"]',
+    HIDDEN_ELEMENTS: '[sc-dark-hidden="true"]',
   };
 
   // Track if CSS has been loaded
@@ -63,7 +64,7 @@
 
     iframes.forEach((iframe) => {
       try {
-        // Try to find and remove the parent container too
+        // Try to find and hide the parent container too
         let parent = iframe.parentElement;
         while (
           parent &&
@@ -74,12 +75,16 @@
         }
 
         if (parent && parent.classList.contains("sidebarModule")) {
-          parent.remove();
+          // Hide instead of removing
+          parent.style.setProperty("display", "none", "important");
+          parent.setAttribute("sc-dark-hidden", "true");
         } else {
-          iframe.remove();
+          // Hide instead of removing
+          iframe.style.setProperty("display", "none", "important");
+          iframe.setAttribute("sc-dark-hidden", "true");
         }
       } catch (e) {
-        // Silent catch - if we can't remove it, just continue
+        // Silent catch - if we can't hide it, just continue
       }
     });
   }
@@ -147,6 +152,11 @@
       }
     });
 
+    // Ensure hidden elements stay hidden
+    document.querySelectorAll(SELECTORS.HIDDEN_ELEMENTS).forEach((element) => {
+      element.style.setProperty("display", "none", "important");
+    });
+
     // Set placeholder color for textfields
     if (!document.getElementById("sc-dark-placeholders")) {
       const style = document.createElement("style");
@@ -167,7 +177,7 @@
       (document.head || document.body).appendChild(style);
     }
 
-    // Remove unwanted iframes
+    // Hide unwanted iframes
     removeUnwantedIframes();
   }
 
@@ -340,13 +350,22 @@
         el.removeAttribute("text-fixed");
       });
 
+      // Make sure hidden elements stay hidden
+      document.querySelectorAll(SELECTORS.HIDDEN_ELEMENTS).forEach((el) => {
+        el.style.setProperty("display", "none", "important");
+      });
+
       // Apply dark mode and styles with strategic delays
       applyDarkMode();
       enforceStyles();
 
       // Schedule additional style enforcements to catch dynamically loaded content
       [100, 500, 1500].forEach((delay) => {
-        const timeoutId = setTimeout(enforceStyles, delay);
+        const timeoutId = setTimeout(() => {
+          enforceStyles();
+          // Re-check for unwanted iframes that might have been loaded
+          removeUnwantedIframes();
+        }, delay);
         pendingTimeouts.push(timeoutId);
       });
     }
@@ -381,9 +400,11 @@
     // Use a debounce mechanism to avoid excessive style enforcement
     let debounceTimeout = null;
     let pendingStyleEnforcement = false;
+    let pendingIframeCheck = false;
 
     const observer = new MutationObserver((mutations) => {
       let shouldEnforceStyles = false;
+      let shouldCheckIframes = false;
 
       // Process mutations efficiently
       for (let i = 0; i < mutations.length; i++) {
@@ -403,6 +424,17 @@
             ) {
               setMenuDarkMode(node);
             }
+
+            // Check if this might be an iframe we want to hide
+            if (
+              node.nodeType === 1 &&
+              (node.tagName === "IFRAME" ||
+                (node.classList &&
+                  (node.classList.contains("webiEmbeddedModule") ||
+                    (node.querySelector && node.querySelector("iframe")))))
+            ) {
+              shouldCheckIframes = true;
+            }
           }
 
           shouldEnforceStyles = true;
@@ -417,8 +449,8 @@
           shouldEnforceStyles = true;
         }
 
-        // Early exit if we already know we need to enforce styles
-        if (shouldEnforceStyles) break;
+        // Early exit if we already know we need to enforce styles and check iframes
+        if (shouldEnforceStyles && shouldCheckIframes) break;
       }
 
       // Debounce style enforcement to reduce performance impact
@@ -430,6 +462,32 @@
         }
 
         debounceTimeout = setTimeout(() => {
+          if (pendingStyleEnforcement) {
+            enforceStyles();
+            pendingStyleEnforcement = false;
+          }
+
+          if (pendingIframeCheck) {
+            removeUnwantedIframes();
+            pendingIframeCheck = false;
+          }
+        }, 150);
+      }
+
+      // Set flag to check for iframes in the next debounce cycle
+      if (shouldCheckIframes) {
+        pendingIframeCheck = true;
+
+        if (debounceTimeout) {
+          clearTimeout(debounceTimeout);
+        }
+
+        debounceTimeout = setTimeout(() => {
+          if (pendingIframeCheck) {
+            removeUnwantedIframes();
+            pendingIframeCheck = false;
+          }
+
           if (pendingStyleEnforcement) {
             enforceStyles();
             pendingStyleEnforcement = false;
