@@ -71,6 +71,19 @@
     try {
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
+        // Ensure the root element has the dark mode class
+        if (
+          document.documentElement &&
+          !document.documentElement.classList.contains("jtc-sc-dark")
+        ) {
+          document.documentElement.classList.add("jtc-sc-dark");
+        }
+
+        // Apply dark mode to all menus
+        document
+          .querySelectorAll(".m-light, .m-dark")
+          .forEach((node) => setMenuDarkMode(node));
+
         // Force sidebar title to be white - use more efficient selectors
         document
           .querySelectorAll(
@@ -118,6 +131,41 @@
                 "important"
               );
               element.setAttribute("style-enforced", "true");
+            }
+          });
+
+        // Fix any light-themed elements that might have been added dynamically
+        document
+          .querySelectorAll(".sc-background-light, .sc-background-white")
+          .forEach((element) => {
+            if (element && !element.hasAttribute("bg-fixed")) {
+              element.classList.remove("sc-background-light");
+              element.classList.remove("sc-background-white");
+              element.style.setProperty(
+                "background-color",
+                "var(--jtc-sc-bg)",
+                "important"
+              );
+              element.style.setProperty(
+                "background",
+                "var(--jtc-sc-bg)",
+                "important"
+              );
+              element.setAttribute("bg-fixed", "true");
+            }
+          });
+
+        // Fix text colors on dynamically loaded content
+        document
+          .querySelectorAll(".sc-text-light, .sc-text-secondary, .sc-text-base")
+          .forEach((element) => {
+            if (element && !element.hasAttribute("text-fixed")) {
+              element.style.setProperty(
+                "color",
+                "var(--jtc-sc-light-text)",
+                "important"
+              );
+              element.setAttribute("text-fixed", "true");
             }
           });
 
@@ -314,14 +362,136 @@
       link.type = "text/css";
       link.href =
         "https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud.css";
+      link.id = "sc-dark-theme-css";
       document.head.appendChild(link);
     } catch (e) {
       console.warn("Error loading CSS from remote: " + e.message);
     }
   }
 
+  // Function to ensure CSS is loaded
+  function ensureCSSLoaded() {
+    // Check if our CSS is still in the document
+    const cssExists =
+      document.getElementById("sc-dark-theme-css") ||
+      document.getElementById("sc-dark-placeholders");
+
+    if (!cssExists) {
+      console.log("Reloading CSS after navigation");
+      loadCSS();
+    }
+
+    // Ensure dark mode class is on root element
+    if (
+      document.documentElement &&
+      !document.documentElement.classList.contains("jtc-sc-dark")
+    ) {
+      document.documentElement.classList.add("jtc-sc-dark");
+    }
+  }
+
   // Load the CSS
   loadCSS();
+
+  // Track SPA navigation
+  let lastUrl = location.href;
+
+  // Function to handle SPA navigation
+  function handleSPANavigation() {
+    const currentUrl = location.href;
+    if (currentUrl !== lastUrl) {
+      console.log("SoundCloud navigation detected:", currentUrl);
+      lastUrl = currentUrl;
+
+      // Ensure CSS is loaded
+      ensureCSSLoaded();
+
+      // Reapply dark mode and styles after navigation
+      // Use multiple timeouts to catch content that loads at different times
+      const applyWithDelay = (delay) => {
+        setTimeout(() => {
+          // Reset enforced attributes to ensure styles are reapplied
+          document
+            .querySelectorAll(
+              '[style-enforced="true"], [bg-fixed="true"], [text-fixed="true"]'
+            )
+            .forEach((el) => {
+              el.removeAttribute("style-enforced");
+              el.removeAttribute("bg-fixed");
+              el.removeAttribute("text-fixed");
+            });
+
+          // Reapply dark mode
+          applyDarkMode();
+
+          // Enforce styles
+          enforceStyles();
+        }, delay);
+      };
+
+      // Apply immediately
+      applyWithDelay(0);
+
+      // Apply again after short delay for initial content load
+      applyWithDelay(100);
+
+      // Apply again after longer delays to catch dynamically loaded content
+      applyWithDelay(500);
+      applyWithDelay(1000);
+      applyWithDelay(2000);
+    }
+  }
+
+  // Set up navigation monitoring
+  function setupNavigationMonitoring() {
+    // Monitor URL changes using various methods for compatibility
+
+    // Method 1: Use history API if available
+    if (window.history && window.history.pushState) {
+      // Override history methods
+      const originalPushState = window.history.pushState;
+      const originalReplaceState = window.history.replaceState;
+
+      window.history.pushState = function () {
+        originalPushState.apply(this, arguments);
+        handleSPANavigation();
+      };
+
+      window.history.replaceState = function () {
+        originalReplaceState.apply(this, arguments);
+        handleSPANavigation();
+      };
+
+      // Listen for popstate events (back/forward navigation)
+      window.addEventListener("popstate", handleSPANavigation);
+    }
+
+    // Method 2: Listen for click events on links that might trigger SPA navigation
+    document.addEventListener(
+      "click",
+      (e) => {
+        // Wait a bit to see if navigation occurred
+        setTimeout(handleSPANavigation, 50);
+      },
+      true
+    );
+
+    // Method 3: Fallback to checking URL periodically
+    setInterval(handleSPANavigation, 500);
+
+    // Method 4: Listen for SoundCloud's custom events if they exist
+    if (window.addEventListener) {
+      // Try to detect any custom events that might indicate navigation
+      ["route:changed", "page:loaded", "navigation", "navigate"].forEach(
+        (eventName) => {
+          window.addEventListener(eventName, handleSPANavigation, true);
+        }
+      );
+    }
+  }
+
+  // Start monitoring for SPA navigation
+  setupNavigationMonitoring();
 
   // Unified MutationObserver to handle all DOM changes
   const unifiedObserver = new MutationObserver((mutations) => {
