@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Modern Design and Dark Theme for SoundCloud
-// @version      0.28.0
+// @version      0.29.0
 // @description  A modern design and dark theme for SoundCloud.com, inspired by the SoundCloud Android app.
 // @author       purr
 // @namespace    https://github.com/purr/dark-soundcloud
@@ -24,29 +24,45 @@
 (function () {
   "use strict";
 
+  // Performance optimization: Store selectors as constants to avoid recreating them
+  const SELECTORS = {
+    MENUS: ".m-light, .m-dark",
+    SIDEBAR_TITLE:
+      ".sidebarHeader__actualTitle, .sidebarHeader__actualTitle__webi__style",
+    REFRESH_TEXT: ".sidebarHeader__more__webi_style",
+    ARTIST_USERNAME: ".artistShortcutTile__username",
+    BACKGROUND_LIGHT: ".sc-background-light, .sc-background-white",
+    TEXT_LIGHT: ".sc-text-light, .sc-text-secondary, .sc-text-base",
+    UNWANTED_IFRAMES:
+      '.webiEmbeddedModuleIframe[title="Artist tools"], .webiEmbeddedModuleIframe[title="Track insights"], .webiEmbeddedModule',
+    STYLE_ENFORCED:
+      '[style-enforced="true"], [bg-fixed="true"], [text-fixed="true"]',
+  };
+
+  // Track if CSS has been loaded
+  let cssLoaded = false;
+
+  // Track last URL for SPA navigation detection
+  let lastUrl = location.href;
+
+  // Store timeouts to clear them when needed
+  let pendingTimeouts = [];
+
   // Makes a SoundCloud menu dark using the built-in styles
   function setMenuDarkMode(node) {
-    // Always use dark mode
+    if (!node || !node.classList) return;
     node.classList.remove("m-light");
     node.classList.add("m-dark");
   }
 
   // Function to remove unwanted iframes (Artist Tools and Track Insights)
   function removeUnwantedIframes() {
-    // Define the iframe selectors to remove
-    const selectors = [
-      '.webiEmbeddedModuleIframe[title="Artist tools"]',
-      '.webiEmbeddedModuleIframe[title="Track insights"]',
-    ];
+    const iframes = document.querySelectorAll(SELECTORS.UNWANTED_IFRAMES);
 
-    // Create a combined selector
-    const combinedSelector = selectors.join(", ");
+    if (!iframes || iframes.length === 0) return;
 
-    // Find all matching iframes
-    const iframes = document.querySelectorAll(combinedSelector);
-
-    if (iframes && iframes.length > 0) {
-      iframes.forEach((iframe) => {
+    iframes.forEach((iframe) => {
+      try {
         // Try to find and remove the parent container too
         let parent = iframe.parentElement;
         while (
@@ -62,271 +78,192 @@
         } else {
           iframe.remove();
         }
-      });
-    }
+      } catch (e) {
+        // Silent catch - if we can't remove it, just continue
+      }
+    });
   }
 
   // Function to enforce styles with improved performance
   function enforceStyles() {
-    try {
-      // Use requestAnimationFrame for better performance
-      requestAnimationFrame(() => {
-        // Ensure the root element has the dark mode class
-        if (
-          document.documentElement &&
-          !document.documentElement.classList.contains("jtc-sc-dark")
-        ) {
-          document.documentElement.classList.add("jtc-sc-dark");
-        }
-
-        // Apply dark mode to all menus
-        document
-          .querySelectorAll(".m-light, .m-dark")
-          .forEach((node) => setMenuDarkMode(node));
-
-        // Force sidebar title to be white - use more efficient selectors
-        document
-          .querySelectorAll(
-            ".sidebarHeader__actualTitle, .sidebarHeader__actualTitle__webi__style"
-          )
-          .forEach((element) => {
-            if (element && !element.hasAttribute("style-enforced")) {
-              element.style.setProperty("color", "#ffffff", "important");
-              element.style.setProperty("text-shadow", "none", "important");
-              element.style.setProperty(
-                "-webkit-text-fill-color",
-                "#ffffff",
-                "important"
-              );
-              element.setAttribute("style-enforced", "true");
-            }
-          });
-
-        // Set light grey for refresh text
-        document
-          .querySelectorAll(".sidebarHeader__more__webi_style")
-          .forEach((element) => {
-            if (element && !element.hasAttribute("style-enforced")) {
-              element.style.setProperty("color", "#a0a0a0", "important");
-              element.style.setProperty("text-shadow", "none", "important");
-              element.style.setProperty(
-                "-webkit-text-fill-color",
-                "#a0a0a0",
-                "important"
-              );
-              element.setAttribute("style-enforced", "true");
-            }
-          });
-
-        // Set very light grey for artist usernames
-        document
-          .querySelectorAll(".artistShortcutTile__username")
-          .forEach((element) => {
-            if (element && !element.hasAttribute("style-enforced")) {
-              element.style.setProperty("color", "#f0f0f0", "important");
-              element.style.setProperty("text-shadow", "none", "important");
-              element.style.setProperty(
-                "-webkit-text-fill-color",
-                "#f0f0f0",
-                "important"
-              );
-              element.setAttribute("style-enforced", "true");
-            }
-          });
-
-        // Fix any light-themed elements that might have been added dynamically
-        document
-          .querySelectorAll(".sc-background-light, .sc-background-white")
-          .forEach((element) => {
-            if (element && !element.hasAttribute("bg-fixed")) {
-              element.classList.remove("sc-background-light");
-              element.classList.remove("sc-background-white");
-              element.style.setProperty(
-                "background-color",
-                "var(--jtc-sc-bg)",
-                "important"
-              );
-              element.style.setProperty(
-                "background",
-                "var(--jtc-sc-bg)",
-                "important"
-              );
-              element.setAttribute("bg-fixed", "true");
-            }
-          });
-
-        // Fix text colors on dynamically loaded content
-        document
-          .querySelectorAll(".sc-text-light, .sc-text-secondary, .sc-text-base")
-          .forEach((element) => {
-            if (element && !element.hasAttribute("text-fixed")) {
-              element.style.setProperty(
-                "color",
-                "var(--jtc-sc-light-text)",
-                "important"
-              );
-              element.setAttribute("text-fixed", "true");
-            }
-          });
-
-        // Set placeholder color for textfields - more efficient implementation
-        if (!document.getElementById("sc-dark-placeholders")) {
-          const style = document.createElement("style");
-          style.id = "sc-dark-placeholders";
-          style.textContent = `
-            .textfield__input.sc-input.sc-input-medium::placeholder,
-            input.textfield__input.sc-input.sc-input-medium::placeholder { 
-              color: #bdbdbd !important; 
-              opacity: 1 !important; 
-            }
-            .textfield__input.sc-input.sc-input-medium::-webkit-input-placeholder { 
-              color: #bdbdbd !important; 
-              opacity: 1 !important; 
-            }
-            .textfield__input.sc-input.sc-input-medium::-moz-placeholder { 
-              color: #bdbdbd !important; 
-              opacity: 1 !important; 
-            }
-            .textfield__input.sc-input.sc-input-medium::-ms-input-placeholder { 
-              color: #bdbdbd !important; 
-              opacity: 1 !important; 
-            }
-          `;
-          (document.head || document.body).appendChild(style);
-        }
-
-        // Remove unwanted iframes (Artist Tools and Track Insights)
-        removeUnwantedIframes();
-      });
-    } catch (e) {
-      console.warn("Error in enforceStyles: " + e.message);
+    // Ensure the root element has the dark mode class
+    if (
+      document.documentElement &&
+      !document.documentElement.classList.contains("jtc-sc-dark")
+    ) {
+      document.documentElement.classList.add("jtc-sc-dark");
     }
+
+    // Apply dark mode to all menus
+    document.querySelectorAll(SELECTORS.MENUS).forEach(setMenuDarkMode);
+
+    // Apply styles to specific elements using a more efficient approach
+    applyStylesToElements(SELECTORS.SIDEBAR_TITLE, {
+      color: "#ffffff",
+      textShadow: "none",
+      webkitTextFillColor: "#ffffff",
+    });
+
+    applyStylesToElements(SELECTORS.REFRESH_TEXT, {
+      color: "#a0a0a0",
+      textShadow: "none",
+      webkitTextFillColor: "#a0a0a0",
+    });
+
+    applyStylesToElements(SELECTORS.ARTIST_USERNAME, {
+      color: "#f0f0f0",
+      textShadow: "none",
+      webkitTextFillColor: "#f0f0f0",
+    });
+
+    // Fix background colors
+    document.querySelectorAll(SELECTORS.BACKGROUND_LIGHT).forEach((element) => {
+      if (element && !element.hasAttribute("bg-fixed")) {
+        element.classList.remove("sc-background-light");
+        element.classList.remove("sc-background-white");
+        element.style.setProperty(
+          "background-color",
+          "var(--jtc-sc-bg)",
+          "important"
+        );
+        element.style.setProperty(
+          "background",
+          "var(--jtc-sc-bg)",
+          "important"
+        );
+        element.setAttribute("bg-fixed", "true");
+      }
+    });
+
+    // Fix text colors
+    document.querySelectorAll(SELECTORS.TEXT_LIGHT).forEach((element) => {
+      if (element && !element.hasAttribute("text-fixed")) {
+        element.style.setProperty(
+          "color",
+          "var(--jtc-sc-light-text)",
+          "important"
+        );
+        element.setAttribute("text-fixed", "true");
+      }
+    });
+
+    // Set placeholder color for textfields
+    if (!document.getElementById("sc-dark-placeholders")) {
+      const style = document.createElement("style");
+      style.id = "sc-dark-placeholders";
+      style.textContent = `
+        .textfield__input.sc-input.sc-input-medium::placeholder,
+        input.textfield__input.sc-input.sc-input-medium::placeholder { 
+          color: #bdbdbd !important; 
+          opacity: 1 !important; 
+        }
+        .textfield__input.sc-input.sc-input-medium::-webkit-input-placeholder,
+        .textfield__input.sc-input.sc-input-medium::-moz-placeholder,
+        .textfield__input.sc-input.sc-input-medium::-ms-input-placeholder { 
+          color: #bdbdbd !important; 
+          opacity: 1 !important; 
+        }
+      `;
+      (document.head || document.body).appendChild(style);
+    }
+
+    // Remove unwanted iframes
+    removeUnwantedIframes();
+  }
+
+  // Helper function to apply styles to elements more efficiently
+  function applyStylesToElements(selector, styles) {
+    document.querySelectorAll(selector).forEach((element) => {
+      if (element && !element.hasAttribute("style-enforced")) {
+        for (const [property, value] of Object.entries(styles)) {
+          // Convert camelCase to kebab-case for CSS properties
+          const cssProperty = property.replace(/([A-Z])/g, "-$1").toLowerCase();
+          element.style.setProperty(cssProperty, value, "important");
+        }
+        element.setAttribute("style-enforced", "true");
+      }
+    });
   }
 
   // Function to apply dark mode
-  function jtcScApplyDark() {
-    // Apply dark mode to menus
-    if (document.querySelectorAll) {
-      document
-        .querySelectorAll(".m-light, .m-dark")
-        .forEach((node) => setMenuDarkMode(node));
-    }
-  }
-
-  // Set dark mode on load - MODIFIED to always use dark mode
   function applyDarkMode() {
     if (document.documentElement) {
       document.documentElement.classList.add("jtc-sc-dark");
-      jtcScApplyDark();
-    } else {
-      // If document isn't ready yet, try again in a moment
-      setTimeout(applyDarkMode, 10);
+      document.querySelectorAll(SELECTORS.MENUS).forEach(setMenuDarkMode);
     }
   }
 
-  // Apply dark mode
-  applyDarkMode();
+  // Load fonts with error handling - only load once
+  function loadFonts() {
+    if (typeof FontFace === "undefined" || !document.fonts) return;
 
-  // Remove the toggle dark mode functionality
-  window.jtcScToggleDark = function () {
-    // Do nothing - dark mode only
-    console.log("This version is dark mode only");
-  };
-
-  // Load fonts with error handling
-  function loadFont(weight, url) {
     try {
-      const fontFace = new FontFace("SoundCloudSans", `url(${url})`, {
-        style: "normal",
-        stretch: "normal",
-        weight: weight,
+      // Define font weights and URLs
+      const fontWeights = [
+        { weight: "500", resource: "FONT_500" },
+        { weight: "700", resource: "FONT_700" },
+        { weight: "900", resource: "FONT_900" },
+      ];
+
+      // Load each font
+      fontWeights.forEach(({ weight, resource }) => {
+        try {
+          let url;
+
+          // Try to use GM_getResourceURL if available
+          if (typeof GM_getResourceURL !== "undefined") {
+            try {
+              url = GM_getResourceURL(resource);
+            } catch (e) {
+              url = `https://github.com/purr/dark-soundcloud/raw/main/fonts/soundcloud-sans-${weight}.woff2`;
+            }
+          } else {
+            url = `https://github.com/purr/dark-soundcloud/raw/main/fonts/soundcloud-sans-${weight}.woff2`;
+          }
+
+          const fontFace = new FontFace("SoundCloudSans", `url(${url})`, {
+            style: "normal",
+            stretch: "normal",
+            weight: weight,
+          });
+
+          fontFace
+            .load()
+            .then((font) => document.fonts.add(font))
+            .catch(() => {}); // Silently fail - fallback fonts will be used
+        } catch (e) {
+          // Silently fail - fallback fonts will be used
+        }
       });
-
-      fontFace
-        .load()
-        .then(() => document.fonts.add(fontFace))
-        .catch((err) =>
-          console.warn(
-            `Failed to load SoundCloud Sans ${weight}: ${err.message}`
-          )
-        );
     } catch (e) {
-      console.warn(
-        `Error creating font face for SoundCloud Sans ${weight}: ${e.message}`
-      );
+      // Silently fail - fallback fonts will be used
     }
   }
 
-  // Load fonts with error handling
-  if (typeof FontFace !== "undefined" && document.fonts) {
-    // Define font URLs as variables
-    const FONT_BASE_URL =
-      "https://github.com/purr/dark-soundcloud/raw/main/fonts/";
-    const FONT_URLS = {
-      500: FONT_BASE_URL + "soundcloud-sans-500.woff2",
-      700: FONT_BASE_URL + "soundcloud-sans-700.woff2",
-      900: FONT_BASE_URL + "soundcloud-sans-900.woff2",
-    };
-
-    // Try to use GM_getResourceURL if available for local font files
-    if (typeof GM_getResourceURL !== "undefined") {
-      try {
-        loadFont(500, GM_getResourceURL("FONT_500"));
-        loadFont(700, GM_getResourceURL("FONT_700"));
-        loadFont(900, GM_getResourceURL("FONT_900"));
-      } catch (e) {
-        console.warn("Error loading fonts from resources: " + e.message);
-        // Fallback to GitHub repo
-        loadFont(500, FONT_URLS[500]);
-        loadFont(700, FONT_URLS[700]);
-        loadFont(900, FONT_URLS[900]);
-      }
-    } else {
-      // Fallback to GitHub repo if GM_getResourceURL is not available
-      loadFont(500, FONT_URLS[500]);
-      loadFont(700, FONT_URLS[700]);
-      loadFont(900, FONT_URLS[900]);
-    }
-  }
-
-  // Insert CSS at the very end of the document
-  // so it can safely override SoundCloud styles without !important.
+  // Insert CSS
   function addCss(cssString) {
     if (typeof GM_addStyle !== "undefined") {
-      // Use Tampermonkey/Greasemonkey's built-in function if available
       GM_addStyle(cssString);
+      cssLoaded = true;
     } else {
-      // Fallback to creating a style element
       try {
         const newCss = document.createElement("style");
-        newCss.type = "text/css";
+        newCss.id = "sc-dark-theme-css";
         newCss.textContent = cssString;
-
-        // Try to append to head first (for document-start execution)
-        if (document.head) {
-          document.head.appendChild(newCss);
-        }
-        // Fallback to body if head is not available yet
-        else if (document.body) {
-          document.body.appendChild(newCss);
-        }
-        // If neither is available, wait for DOM to be ready
-        else {
-          document.addEventListener("DOMContentLoaded", function () {
-            (document.head || document.body).appendChild(newCss);
-          });
-        }
+        (document.head || document.documentElement).appendChild(newCss);
+        cssLoaded = true;
       } catch (e) {
-        console.warn("Failed to add CSS: " + e.message);
+        console.warn("Failed to add CSS");
       }
     }
   }
 
-  // Load CSS from resource
+  // Load CSS from resource or remote
   function loadCSS() {
+    if (cssLoaded) return;
+
     try {
       if (typeof GM_getResourceText !== "undefined") {
-        // Get CSS from resource
         const css = GM_getResourceText("CSS");
         if (css) {
           // Process the CSS to add !important to all rules
@@ -337,19 +274,14 @@
               "$BTN_EXCLUDE",
               ":not(.reportCopyright):not(.hintButton):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__follow):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__like):not(.sc-button-nostyle):not(.sc-button-next):not(.sc-button-pause):not(.sc-button-play):not(.sc-button-prev):not(.sc-button-blocked)"
             );
-
-          // Add the processed CSS
           addCss(processedCSS);
         } else {
-          console.warn("Failed to load CSS from resource");
           loadCSSFromRemote();
         }
       } else {
-        // Fallback to loading from remote URL
         loadCSSFromRemote();
       }
     } catch (e) {
-      console.warn("Error loading CSS from resource: " + e.message);
       loadCSSFromRemote();
     }
   }
@@ -360,28 +292,26 @@
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.type = "text/css";
+      link.id = "sc-dark-theme-css";
       link.href =
         "https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud.css";
-      link.id = "sc-dark-theme-css";
-      document.head.appendChild(link);
+      (document.head || document.documentElement).appendChild(link);
+      cssLoaded = true;
     } catch (e) {
-      console.warn("Error loading CSS from remote: " + e.message);
+      console.warn("Error loading CSS from remote");
     }
   }
 
   // Function to ensure CSS is loaded
   function ensureCSSLoaded() {
-    // Check if our CSS is still in the document
-    const cssExists =
-      document.getElementById("sc-dark-theme-css") ||
-      document.getElementById("sc-dark-placeholders");
-
-    if (!cssExists) {
-      console.log("Reloading CSS after navigation");
+    if (
+      !cssLoaded ||
+      (!document.getElementById("sc-dark-theme-css") &&
+        !document.getElementById("sc-dark-placeholders"))
+    ) {
       loadCSS();
     }
 
-    // Ensure dark mode class is on root element
     if (
       document.documentElement &&
       !document.documentElement.classList.contains("jtc-sc-dark")
@@ -390,65 +320,42 @@
     }
   }
 
-  // Load the CSS
-  loadCSS();
-
-  // Track SPA navigation
-  let lastUrl = location.href;
-
   // Function to handle SPA navigation
   function handleSPANavigation() {
     const currentUrl = location.href;
     if (currentUrl !== lastUrl) {
-      console.log("SoundCloud navigation detected:", currentUrl);
       lastUrl = currentUrl;
+
+      // Clear any pending timeouts to avoid memory leaks
+      pendingTimeouts.forEach(clearTimeout);
+      pendingTimeouts = [];
 
       // Ensure CSS is loaded
       ensureCSSLoaded();
 
-      // Reapply dark mode and styles after navigation
-      // Use multiple timeouts to catch content that loads at different times
-      const applyWithDelay = (delay) => {
-        setTimeout(() => {
-          // Reset enforced attributes to ensure styles are reapplied
-          document
-            .querySelectorAll(
-              '[style-enforced="true"], [bg-fixed="true"], [text-fixed="true"]'
-            )
-            .forEach((el) => {
-              el.removeAttribute("style-enforced");
-              el.removeAttribute("bg-fixed");
-              el.removeAttribute("text-fixed");
-            });
+      // Reset enforced attributes to ensure styles are reapplied
+      document.querySelectorAll(SELECTORS.STYLE_ENFORCED).forEach((el) => {
+        el.removeAttribute("style-enforced");
+        el.removeAttribute("bg-fixed");
+        el.removeAttribute("text-fixed");
+      });
 
-          // Reapply dark mode
-          applyDarkMode();
+      // Apply dark mode and styles with strategic delays
+      applyDarkMode();
+      enforceStyles();
 
-          // Enforce styles
-          enforceStyles();
-        }, delay);
-      };
-
-      // Apply immediately
-      applyWithDelay(0);
-
-      // Apply again after short delay for initial content load
-      applyWithDelay(100);
-
-      // Apply again after longer delays to catch dynamically loaded content
-      applyWithDelay(500);
-      applyWithDelay(1000);
-      applyWithDelay(2000);
+      // Schedule additional style enforcements to catch dynamically loaded content
+      [100, 500, 1500].forEach((delay) => {
+        const timeoutId = setTimeout(enforceStyles, delay);
+        pendingTimeouts.push(timeoutId);
+      });
     }
   }
 
   // Set up navigation monitoring
   function setupNavigationMonitoring() {
-    // Monitor URL changes using various methods for compatibility
-
     // Method 1: Use history API if available
     if (window.history && window.history.pushState) {
-      // Override history methods
       const originalPushState = window.history.pushState;
       const originalReplaceState = window.history.replaceState;
 
@@ -462,111 +369,115 @@
         handleSPANavigation();
       };
 
-      // Listen for popstate events (back/forward navigation)
       window.addEventListener("popstate", handleSPANavigation);
     }
 
-    // Method 2: Listen for click events on links that might trigger SPA navigation
-    document.addEventListener(
-      "click",
-      (e) => {
-        // Wait a bit to see if navigation occurred
-        setTimeout(handleSPANavigation, 50);
-      },
-      true
-    );
-
-    // Method 3: Fallback to checking URL periodically
-    setInterval(handleSPANavigation, 500);
-
-    // Method 4: Listen for SoundCloud's custom events if they exist
-    if (window.addEventListener) {
-      // Try to detect any custom events that might indicate navigation
-      ["route:changed", "page:loaded", "navigation", "navigate"].forEach(
-        (eventName) => {
-          window.addEventListener(eventName, handleSPANavigation, true);
-        }
-      );
-    }
+    // Method 2: Fallback to checking URL periodically (less frequently to reduce overhead)
+    setInterval(handleSPANavigation, 1000);
   }
 
-  // Start monitoring for SPA navigation
-  setupNavigationMonitoring();
+  // Unified MutationObserver with optimized performance
+  function setupMutationObserver() {
+    // Use a debounce mechanism to avoid excessive style enforcement
+    let debounceTimeout = null;
+    let pendingStyleEnforcement = false;
 
-  // Unified MutationObserver to handle all DOM changes
-  const unifiedObserver = new MutationObserver((mutations) => {
-    let shouldEnforceStyles = false;
-    let hasMenuChanges = false;
+    const observer = new MutationObserver((mutations) => {
+      let shouldEnforceStyles = false;
 
-    // Process mutations to check what needs to be handled
-    mutations.forEach(({ addedNodes, target, type, attributeName }) => {
-      // Check for added nodes that need dark mode
-      if (addedNodes && addedNodes.length) {
-        addedNodes.forEach((node) => {
-          // Handle menu dark mode
-          if (
-            node.nodeType === 1 &&
-            (node.classList?.contains("m-light") ||
-              node.classList?.contains("m-dark"))
-          ) {
-            setMenuDarkMode(node);
-            hasMenuChanges = true;
+      // Process mutations efficiently
+      for (let i = 0; i < mutations.length; i++) {
+        const mutation = mutations[i];
+
+        // Check for added nodes that need dark mode
+        if (mutation.addedNodes && mutation.addedNodes.length) {
+          for (let j = 0; j < mutation.addedNodes.length; j++) {
+            const node = mutation.addedNodes[j];
+
+            // Handle menu dark mode
+            if (
+              node.nodeType === 1 &&
+              node.classList &&
+              (node.classList.contains("m-light") ||
+                node.classList.contains("m-dark"))
+            ) {
+              setMenuDarkMode(node);
+            }
           }
 
-          // Any added node might need style enforcement
           shouldEnforceStyles = true;
-        });
+        }
+
+        // Check for attribute changes that might need style enforcement
+        if (
+          mutation.type === "attributes" &&
+          (mutation.attributeName === "style" ||
+            mutation.attributeName === "class")
+        ) {
+          shouldEnforceStyles = true;
+        }
+
+        // Early exit if we already know we need to enforce styles
+        if (shouldEnforceStyles) break;
       }
 
-      // Check for attribute changes that might need style enforcement
-      if (
-        type === "attributes" &&
-        (attributeName === "style" || attributeName === "class")
-      ) {
-        shouldEnforceStyles = true;
+      // Debounce style enforcement to reduce performance impact
+      if (shouldEnforceStyles) {
+        pendingStyleEnforcement = true;
+
+        if (debounceTimeout) {
+          clearTimeout(debounceTimeout);
+        }
+
+        debounceTimeout = setTimeout(() => {
+          if (pendingStyleEnforcement) {
+            enforceStyles();
+            pendingStyleEnforcement = false;
+          }
+        }, 150);
       }
     });
 
-    // Throttle style enforcement to avoid performance issues
-    if (shouldEnforceStyles) {
-      if (unifiedObserver.timeout) {
-        clearTimeout(unifiedObserver.timeout);
-      }
-      unifiedObserver.timeout = setTimeout(enforceStyles, 100);
-    }
-
-    // Apply dark mode if menu changes were detected
-    if (hasMenuChanges) {
-      jtcScApplyDark();
-    }
-  });
-
-  // Function to start the unified observer
-  function startUnifiedObserver() {
+    // Start observing the document
     if (document.documentElement) {
-      // Start observing the document with the configured parameters
-      unifiedObserver.observe(document.documentElement, {
+      observer.observe(document.documentElement, {
         childList: true,
         subtree: true,
         attributes: true,
         attributeFilter: ["style", "class"],
       });
-
-      // Initial enforcement of styles and removal of iframes
-      enforceStyles();
-    } else {
-      // If document isn't ready yet, try again in a moment
-      setTimeout(startUnifiedObserver, 10);
     }
+
+    // Clean up observer if page is unloaded
+    window.addEventListener("unload", () => {
+      observer.disconnect();
+      pendingTimeouts.forEach(clearTimeout);
+    });
+
+    return observer;
   }
 
-  // Start the unified observer
-  startUnifiedObserver();
+  // Initialize everything
+  function initialize() {
+    // Apply dark mode
+    applyDarkMode();
 
-  // Clean up observer if page is unloaded
-  window.addEventListener("unload", function () {
-    if (unifiedObserver) {
-      unifiedObserver.disconnect();
-    }
-  });
+    // Load CSS
+    loadCSS();
+
+    // Load fonts
+    loadFonts();
+
+    // Set up navigation monitoring
+    setupNavigationMonitoring();
+
+    // Set up mutation observer
+    setupMutationObserver();
+
+    // Initial enforcement of styles
+    enforceStyles();
+  }
+
+  // Start the script
+  initialize();
 })();
