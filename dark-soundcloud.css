@@ -942,6 +942,11 @@ textarea {
   background-color: var(--jtc-sc-bg);
 }
 
+/* Set specific background color for commentItem__creatorLink */
+.commentItem__creatorLink.sc-link-primary {
+  background-color: var(--jtc-sc-border) !important;
+}
+
 .commentItem__createdAt,
 .commentItem__separator,
 .commentItem__timestamp {
