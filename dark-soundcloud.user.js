@@ -281,7 +281,7 @@
             .replaceAll(";\n", " !important;\n")
             .replaceAll(":\n", ";\n")
             .replaceAll(
-              "$BTN_EXCLUDE",
+              ".BTN_EXCLUDE",
               ":not(.reportCopyright):not(.hintButton):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__follow):not(.sc-classic .playbackSoundBadge .playbackSoundBadge__like):not(.sc-button-nostyle):not(.sc-button-next):not(.sc-button-pause):not(.sc-button-play):not(.sc-button-prev):not(.sc-button-blocked)"
             );
           addCss(processedCSS);

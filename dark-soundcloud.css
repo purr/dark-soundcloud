@@ -365,7 +365,7 @@ h6 {
   font-weight: 700;
 }
 
-.sc-button$BTN_EXCLUDE {
+.sc-button.BTN_EXCLUDE {
   border: none;
   background-color: var(--jtc-sc-btn);
   color: var(--jtc-sc-root-text);
@@ -374,11 +374,11 @@ h6 {
   font-family: inherit;
 }
 
-.moreActions .sc-button:not(:hover)$BTN_EXCLUDE {
+.moreActions .sc-button:not(:hover).BTN_EXCLUDE {
   background-color: transparent;
 }
 
-.sc-button:hover$BTN_EXCLUDE {
+.sc-button:hover.BTN_EXCLUDE {
   background-color: var(--jtc-sc-btn-hover);
 }
 
@@ -391,34 +391,38 @@ h6 {
   background-color: var(--jtc-sc-bg);
 }
 
-.sc-button:not(.sc-button-more).sc-button-active$BTN_EXCLUDE,
-.sc-button:not(.sc-button-more).sc-button-selected$BTN_EXCLUDE {
+.sc-button:not(.sc-button-more).sc-button-active.BTN_EXCLUDE,
+.sc-button:not(.sc-button-more).sc-button-selected.BTN_EXCLUDE {
   background-color: #f50;
   color: white;
 }
 
-.sc-button.sc-button-more.sc-button-active$BTN_EXCLUDE,
-.sc-button.sc-button-more.sc-button-selected$BTN_EXCLUDE {
+.sc-button.sc-button-more.sc-button-active.BTN_EXCLUDE,
+.sc-button.sc-button-more.sc-button-selected.BTN_EXCLUDE {
   background-color: var(--jtc-sc-btn-hover);
 }
 
-.sc-button-active:not(.sc-button-more)$BTN_EXCLUDE: before,
-    .sc-button-selected:not(.sc-button-more)$BTN_EXCLUDE: before {
+.sc-button-active:not(.sc-button-more).BTN_EXCLUDE:before,
+.sc-button-selected:not(.sc-button-more).BTN_EXCLUDE:before {
   filter: brightness(100) grayscale(1);
 }
 
 .sc-button.sc-button-follow:not(.sc-button-selected):not(
     .sc-button-active
-  )$BTN_EXCLUDE {
+  ).BTN_EXCLUDE {
   background-color: var(--jtc-sc-btn-main);
   color: var(--jtc-sc-btn-main-text);
 }
 
-.sc-button.sc-button-follow:not(.sc-button-selected):not(.sc-button-active)$BTN_EXCLUDE: before {
+.sc-button.sc-button-follow:not(.sc-button-selected):not(
+    .sc-button-active
+  ).BTN_EXCLUDE:before {
   filter: brightness(100) grayscale(1);
 }
 
-.sc-button.sc-button-follow:not(.sc-button-selected):not(.sc-button-active)$BTN_EXCLUDE: before {
+.sc-button.sc-button-follow:not(.sc-button-selected):not(
+    .sc-button-active
+  ).BTN_EXCLUDE:before {
   filter: brightness(0) grayscale(1);
 }
 
@@ -935,6 +939,7 @@ textarea {
 .commentItem__replyButton:hover,
 .commentItem__replyButton:visited {
   color: var(--jtc-sc-root-text);
+  background-color: var(--jtc-sc-bg);
 }
 
 .commentItem__createdAt,
@@ -967,7 +972,9 @@ textarea {
 }
 
 /* Ensure buttons have proper filter */
-.sc-button:not(.sc-button-selected):not(.sc-button-active):not(.sc-button-medium.sc-button-like):not(.sc-button-follow)$BTN_EXCLUDE: before {
+.sc-button:not(.sc-button-selected):not(.sc-button-active):not(
+    .sc-button-medium.sc-button-like
+  ):not(.sc-button-follow).BTN_EXCLUDE:before {
   filter: brightness(100) grayscale(1);
 }
 
@@ -1085,4 +1092,18 @@ input.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder,
 .sc-classic .textfield__input.sc-input.sc-input-medium::-ms-input-placeholder {
   color: #bdbdbd !important;
   opacity: 1 !important;
+}
+
+/* Make selected like button have white background */
+.sc-button-like.sc-button-selected,
+.sc-button-like.sc-button-selected.sc-button-secondary,
+.sc-button-like.sc-button-selected.sc-button-small,
+.sc-button-like.sc-button-selected.sc-button-icon,
+.sc-button-like.sc-button-selected.sc-button-responsive {
+  background-color: #ffffff !important;
+}
+
+/* Ensure the like icon is properly colored when selected */
+.sc-button-like.sc-button-selected:before {
+  filter: brightness(0) grayscale(1) !important;
 }
