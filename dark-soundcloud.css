@@ -938,12 +938,7 @@ textarea {
 .commentItem__replyButton,
 .commentItem__replyButton:hover,
 .commentItem__replyButton:visited {
-  color: var(--jtc-sc-root-text);
-  background-color: var(--jtc-sc-bg);
-}
-
-/* Set specific background color for commentItem__creatorLink */
-.commentItem__creatorLink.sc-link-primary {
+  color: var(--jtc-sc-root-text) !important;
   background-color: var(--jtc-sc-border) !important;
 }
 
