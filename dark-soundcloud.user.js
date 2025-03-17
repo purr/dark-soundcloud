@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Modern Design and Dark Theme for SoundCloud
-// @version      0.29.0
+// @version      0.30.0
 // @description  A modern design and dark theme for SoundCloud.com, inspired by the SoundCloud Android app.
 // @author       purr
 // @namespace    https://github.com/purr/dark-soundcloud
