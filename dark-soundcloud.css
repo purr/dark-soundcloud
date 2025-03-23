@@ -969,7 +969,7 @@ html body .sc-classic a.commentItem__usernameLink.sc-link-primary {
   text-shadow: none !important;
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
   text-decoration: none !important;
-  transition: opacity 0.2s ease-in-out, text-decoration 0.2s ease-in-out !important;
+  transition: opacity 0.2s ease-in-out !important;
   background-color: var(--jtc-sc-border) !important;
   padding: 2px 4px !important;
   border-radius: 3px !important;
@@ -982,7 +982,7 @@ a.commentItem__usernameLink:hover,
 html body .commentItem__usernameLink.sc-link-primary:hover,
 html body .sc-classic a.commentItem__usernameLink.sc-link-primary:hover {
   opacity: 0.85 !important;
-  text-decoration: underline !important;
+  text-decoration: none !important;
   color: var(--jtc-sc-root-text) !important;
   text-shadow: none !important;
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;

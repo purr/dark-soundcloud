@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Modern Design and Dark Theme for SoundCloud
-// @version      0.30.5
+// @version      0.30.7
 // @description  A modern design and dark theme for SoundCloud.com, inspired by the SoundCloud Android app.
 // @author       purr
 // @namespace    https://github.com/purr/dark-soundcloud
@@ -41,8 +41,11 @@
     HIDDEN_ELEMENTS: '[sc-dark-hidden="true"]',
   };
 
-  // Track if CSS has been loaded
+  // Track if CSS has been loaded - set to false initially
   let cssLoaded = false;
+
+  // Track if we need to force reload CSS
+  const forceReloadCSS = true; // Set to true to force reload on every page load
 
   // Track last URL for SPA navigation detection
   let lastUrl = location.href;
@@ -223,10 +226,10 @@
           link.style.setProperty("padding", "2px 4px", "important");
           link.style.setProperty("border-radius", "3px", "important");
 
-          // Add transition
+          // Add transition for opacity only
           link.style.setProperty(
             "transition",
-            "opacity 0.2s ease-in-out, text-decoration 0.2s ease-in-out",
+            "opacity 0.2s ease-in-out",
             "important"
           );
 
@@ -236,7 +239,8 @@
           // Add hover event listeners
           link.addEventListener("mouseenter", function () {
             this.style.setProperty("opacity", "0.85", "important");
-            this.style.setProperty("text-decoration", "underline", "important");
+            // Keep text-decoration as none
+            this.style.setProperty("text-decoration", "none", "important");
           });
 
           link.addEventListener("mouseleave", function () {
@@ -370,6 +374,12 @@
 
   // Insert CSS
   function addCss(cssString) {
+    // Remove any existing dark theme CSS to prevent duplicates
+    const existingCss = document.getElementById("sc-dark-theme-css");
+    if (existingCss) {
+      existingCss.remove();
+    }
+
     if (typeof GM_addStyle !== "undefined") {
       GM_addStyle(cssString);
       cssLoaded = true;
@@ -388,7 +398,8 @@
 
   // Load CSS from resource or remote
   function loadCSS() {
-    if (cssLoaded) return;
+    // Always reload if forceReloadCSS is true
+    if (cssLoaded && !forceReloadCSS) return;
 
     try {
       if (typeof GM_getResourceText !== "undefined") {
@@ -417,12 +428,19 @@
   // Fallback function to load CSS from remote URL
   function loadCSSFromRemote() {
     try {
+      // Remove any existing link to prevent duplicates
+      const existingLink = document.querySelector("link#sc-dark-theme-css");
+      if (existingLink) {
+        existingLink.remove();
+      }
+
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.type = "text/css";
       link.id = "sc-dark-theme-css";
-      link.href =
-        "https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud.css";
+      // Add cache-busting parameter to force reload
+      const cacheBuster = forceReloadCSS ? `?t=${Date.now()}` : "";
+      link.href = `https://github.com/purr/dark-soundcloud/raw/main/dark-soundcloud.css${cacheBuster}`;
       (document.head || document.documentElement).appendChild(link);
       cssLoaded = true;
     } catch (e) {
@@ -432,8 +450,10 @@
 
   // Function to ensure CSS is loaded
   function ensureCSSLoaded() {
+    // Always reload if forceReloadCSS is true
     if (
       !cssLoaded ||
+      forceReloadCSS ||
       (!document.getElementById("sc-dark-theme-css") &&
         !document.getElementById("sc-dark-placeholders"))
     ) {
@@ -457,6 +477,11 @@
       // Clear any pending timeouts to avoid memory leaks
       pendingTimeouts.forEach(clearTimeout);
       pendingTimeouts = [];
+
+      // Force reload CSS if needed
+      if (forceReloadCSS) {
+        cssLoaded = false;
+      }
 
       // Ensure CSS is loaded
       ensureCSSLoaded();
@@ -637,6 +662,11 @@
   function initialize() {
     // Apply dark mode
     applyDarkMode();
+
+    // Reset CSS loaded state on page load if force reload is enabled
+    if (forceReloadCSS) {
+      cssLoaded = false;
+    }
 
     // Load CSS
     loadCSS();
