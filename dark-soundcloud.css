@@ -939,7 +939,28 @@ textarea {
 .commentItem__replyButton:hover,
 .commentItem__replyButton:visited {
   color: var(--jtc-sc-root-text) !important;
+  background-color: var(--jtc-sc-bg) !important;
+}
+
+/* Set specific background color for commentItem__creatorLink */
+.commentItem__creatorLink.sc-link-primary {
   background-color: var(--jtc-sc-border) !important;
+}
+
+/* Set the same background color for commentItem__usernameLink */
+.commentItem__usernameLink.sc-link-primary {
+  background-color: var(--jtc-sc-border) !important;
+}
+
+/* Ensure proper text color for comment body with high specificity */
+.sc-classic .commentItem__body,
+html body .sc-classic .commentItem__body,
+.commentPopover .commentItem__body,
+.commentsList .commentItem__body,
+.commentItem .commentItem__body {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
 }
 
 .commentItem__createdAt,
