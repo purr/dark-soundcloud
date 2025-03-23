@@ -963,6 +963,30 @@ html body .sc-classic .commentItem__body,
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
 }
 
+/* Ensure all child elements inside the comment body inherit the text color */
+.commentItem__body *,
+.sc-classic .commentItem__body *,
+html body .sc-classic .commentItem__body *,
+.commentPopover .commentItem__body *,
+.commentsList .commentItem__body *,
+.commentItem .commentItem__body * {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
+/* Apply text color specifically to divs, spans, and paragraphs within comment bodies */
+.commentItem__body div,
+.commentItem__body span,
+.commentItem__body p,
+.sc-classic .commentItem__body div,
+.sc-classic .commentItem__body span,
+.sc-classic .commentItem__body p {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
 .commentItem__createdAt,
 .commentItem__separator,
 .commentItem__timestamp {
