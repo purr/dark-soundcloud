@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Modern Design and Dark Theme for SoundCloud
-// @version      0.30.3
+// @version      0.30.4
 // @description  A modern design and dark theme for SoundCloud.com, inspired by the SoundCloud Android app.
 // @author       purr
 // @namespace    https://github.com/purr/dark-soundcloud
@@ -178,8 +178,60 @@
       (document.head || document.body).appendChild(style);
     }
 
+    // Force comment body text color on all children
+    enforceCommentTextColor();
+
     // Hide unwanted iframes
     removeUnwantedIframes();
+  }
+
+  // New function to enforce text color on all comment body elements and their children
+  function enforceCommentTextColor() {
+    try {
+      // Find all comment body elements
+      const commentBodies = document.querySelectorAll(".commentItem__body");
+
+      if (!commentBodies.length) return;
+
+      commentBodies.forEach((commentBody) => {
+        // Set proper color on the comment body itself
+        if (!commentBody.hasAttribute("text-color-fixed")) {
+          commentBody.style.setProperty(
+            "color",
+            "var(--jtc-sc-root-text)",
+            "important"
+          );
+          commentBody.style.setProperty("text-shadow", "none", "important");
+          commentBody.style.setProperty(
+            "-webkit-text-fill-color",
+            "var(--jtc-sc-root-text)",
+            "important"
+          );
+          commentBody.setAttribute("text-color-fixed", "true");
+        }
+
+        // Find and force color on all child elements
+        const childElements = commentBody.querySelectorAll("*");
+        childElements.forEach((element) => {
+          if (!element.hasAttribute("text-color-fixed")) {
+            element.style.setProperty(
+              "color",
+              "var(--jtc-sc-root-text)",
+              "important"
+            );
+            element.style.setProperty("text-shadow", "none", "important");
+            element.style.setProperty(
+              "-webkit-text-fill-color",
+              "var(--jtc-sc-root-text)",
+              "important"
+            );
+            element.setAttribute("text-color-fixed", "true");
+          }
+        });
+      });
+    } catch (e) {
+      // Silent catch - if we can't enforce comment text color, continue with other operations
+    }
   }
 
   // Helper function to apply styles to elements more efficiently
