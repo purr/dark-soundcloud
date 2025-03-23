@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Modern Design and Dark Theme for SoundCloud
-// @version      0.30.7
+// @version      0.30.8
 // @description  A modern design and dark theme for SoundCloud.com, inspired by the SoundCloud Android app.
 // @author       purr
 // @namespace    https://github.com/purr/dark-soundcloud
@@ -201,9 +201,51 @@
 
       if (!usernameLinks.length) return;
 
+      // Create a style element to handle pseudo-classes if it doesn't exist
+      if (!document.getElementById("sc-dark-username-links-style")) {
+        const style = document.createElement("style");
+        style.id = "sc-dark-username-links-style";
+        style.textContent = `
+          /* Target all pseudo-states of username links */
+          .commentItem__usernameLink,
+          .commentItem__usernameLink:hover,
+          .commentItem__usernameLink:visited,
+          .commentItem__usernameLink:link,
+          .commentItem__usernameLink:active,
+          a.commentItem__usernameLink,
+          a.commentItem__usernameLink:hover,
+          a.commentItem__usernameLink:visited,
+          a.commentItem__usernameLink:link,
+          a.commentItem__usernameLink:active,
+          .commentItem__usernameLink.sc-link-primary,
+          .commentItem__usernameLink.sc-link-primary:hover,
+          .commentItem__usernameLink.sc-link-primary:visited,
+          .commentItem__usernameLink.sc-link-primary:link,
+          .commentItem__usernameLink.sc-link-primary:active {
+            color: var(--jtc-sc-root-text) !important;
+            text-shadow: none !important;
+            -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+            text-decoration: none !important;
+            background-color: var(--jtc-sc-border) !important;
+            padding: 2px 4px !important;
+            border-radius: 3px !important;
+            transition: opacity 0.2s ease-in-out !important;
+          }
+
+          /* Specific styles for hover state only */
+          .commentItem__usernameLink:hover,
+          a.commentItem__usernameLink:hover,
+          .commentItem__usernameLink.sc-link-primary:hover {
+            opacity: 0.85 !important;
+            text-decoration: none !important;
+          }
+        `;
+        (document.head || document.body).appendChild(style);
+      }
+
       usernameLinks.forEach((link) => {
         if (!link.hasAttribute("username-link-fixed")) {
-          // Set text color
+          // Apply inline styles for additional specificity
           link.style.setProperty(
             "color",
             "var(--jtc-sc-root-text)",
@@ -215,8 +257,6 @@
             "var(--jtc-sc-root-text)",
             "important"
           );
-
-          // Set background and styling
           link.style.setProperty(
             "background-color",
             "var(--jtc-sc-border)",
@@ -225,8 +265,6 @@
           link.style.setProperty("text-decoration", "none", "important");
           link.style.setProperty("padding", "2px 4px", "important");
           link.style.setProperty("border-radius", "3px", "important");
-
-          // Add transition for opacity only
           link.style.setProperty(
             "transition",
             "opacity 0.2s ease-in-out",
@@ -239,7 +277,6 @@
           // Add hover event listeners
           link.addEventListener("mouseenter", function () {
             this.style.setProperty("opacity", "0.85", "important");
-            // Keep text-decoration as none
             this.style.setProperty("text-decoration", "none", "important");
           });
 
