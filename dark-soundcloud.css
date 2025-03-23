@@ -975,6 +975,32 @@ html body .sc-classic .commentItem__body *,
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
 }
 
+/* Target specific spans within comment bodies with extra specificity */
+.commentItem__body.sc-hyphenate span,
+.commentItem__body.sc-hyphenate > span,
+div.commentItem__body.sc-hyphenate span,
+.sc-classic .commentItem__body.sc-hyphenate span,
+.sc-classic div.commentItem__body.sc-hyphenate > span,
+html body .sc-classic .commentItem__body.sc-hyphenate span,
+.commentItem__body.sc-hyphenate.sc-mt-0\.5x span,
+div.commentItem__body.sc-hyphenate.sc-mt-0\.5x > span {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
+/* Add even more specific rules with stronger selectors targeting inline style overrides */
+.commentItem__body span[style*="color"],
+.commentItem__body > span[style*="color"],
+.commentItem__body span[style],
+div.commentItem__body > span[style],
+.sc-classic .commentItem__body span[style*="color"],
+html body .sc-classic .commentItem__body span[style] {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
 /* Apply text color specifically to divs, spans, and paragraphs within comment bodies */
 .commentItem__body div,
 .commentItem__body span,
