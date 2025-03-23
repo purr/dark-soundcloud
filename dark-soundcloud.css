@@ -947,17 +947,42 @@ textarea {
   background-color: var(--jtc-sc-border) !important;
 }
 
-/* Set the same background color for commentItem__usernameLink */
-.commentItem__usernameLink.sc-link-primary {
-  background-color: var(--jtc-sc-border) !important;
-}
-
 /* Ensure proper text color for comment body with high specificity */
 .sc-classic .commentItem__body,
 html body .sc-classic .commentItem__body,
 .commentPopover .commentItem__body,
 .commentsList .commentItem__body,
 .commentItem .commentItem__body {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
+/* Force username links to always use proper text color, adding transition on hover */
+.commentItem__usernameLink,
+.commentItem__usernameLink.sc-link-primary,
+a.commentItem__usernameLink,
+.sc-classic a.commentItem__usernameLink,
+html body .commentItem__usernameLink.sc-link-primary,
+html body .sc-classic a.commentItem__usernameLink.sc-link-primary {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+  text-decoration: none !important;
+  transition: opacity 0.2s ease-in-out, text-decoration 0.2s ease-in-out !important;
+  background-color: var(--jtc-sc-border) !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+}
+
+.commentItem__usernameLink:hover,
+.commentItem__usernameLink.sc-link-primary:hover,
+a.commentItem__usernameLink:hover,
+.sc-classic a.commentItem__usernameLink:hover,
+html body .commentItem__usernameLink.sc-link-primary:hover,
+html body .sc-classic a.commentItem__usernameLink.sc-link-primary:hover {
+  opacity: 0.85 !important;
+  text-decoration: underline !important;
   color: var(--jtc-sc-root-text) !important;
   text-shadow: none !important;
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;

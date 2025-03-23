@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Modern Design and Dark Theme for SoundCloud
-// @version      0.30.4
+// @version      0.30.5
 // @description  A modern design and dark theme for SoundCloud.com, inspired by the SoundCloud Android app.
 // @author       purr
 // @namespace    https://github.com/purr/dark-soundcloud
@@ -181,8 +181,73 @@
     // Force comment body text color on all children
     enforceCommentTextColor();
 
+    // Enforce username link styling
+    enforceUsernameLinks();
+
     // Hide unwanted iframes
     removeUnwantedIframes();
+  }
+
+  // Function to enforce styling on username links in comments
+  function enforceUsernameLinks() {
+    try {
+      // Find all username links in comments
+      const usernameLinks = document.querySelectorAll(
+        ".commentItem__usernameLink"
+      );
+
+      if (!usernameLinks.length) return;
+
+      usernameLinks.forEach((link) => {
+        if (!link.hasAttribute("username-link-fixed")) {
+          // Set text color
+          link.style.setProperty(
+            "color",
+            "var(--jtc-sc-root-text)",
+            "important"
+          );
+          link.style.setProperty("text-shadow", "none", "important");
+          link.style.setProperty(
+            "-webkit-text-fill-color",
+            "var(--jtc-sc-root-text)",
+            "important"
+          );
+
+          // Set background and styling
+          link.style.setProperty(
+            "background-color",
+            "var(--jtc-sc-border)",
+            "important"
+          );
+          link.style.setProperty("text-decoration", "none", "important");
+          link.style.setProperty("padding", "2px 4px", "important");
+          link.style.setProperty("border-radius", "3px", "important");
+
+          // Add transition
+          link.style.setProperty(
+            "transition",
+            "opacity 0.2s ease-in-out, text-decoration 0.2s ease-in-out",
+            "important"
+          );
+
+          // Mark as fixed
+          link.setAttribute("username-link-fixed", "true");
+
+          // Add hover event listeners
+          link.addEventListener("mouseenter", function () {
+            this.style.setProperty("opacity", "0.85", "important");
+            this.style.setProperty("text-decoration", "underline", "important");
+          });
+
+          link.addEventListener("mouseleave", function () {
+            this.style.setProperty("opacity", "1", "important");
+            this.style.setProperty("text-decoration", "none", "important");
+          });
+        }
+      });
+    } catch (e) {
+      // Silent catch - if we can't style username links, continue with other operations
+    }
   }
 
   // New function to enforce text color on all comment body elements and their children
