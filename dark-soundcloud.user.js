@@ -190,6 +190,7 @@
     // Apply super aggressive fixes for comment input text and reply buttons
     enforceCommentFormTextColor();
     enforceReplyButtonStyles();
+    applyGlobalTransitions();
 
     // Hide unwanted iframes
     removeUnwantedIframes();
@@ -200,6 +201,7 @@
       window.nucleaFixesInterval = setInterval(() => {
         enforceCommentFormTextColor();
         enforceReplyButtonStyles();
+        applyGlobalTransitions();
       }, 2000); // Check every 2 seconds
     }
   }
@@ -772,6 +774,7 @@ function enforceCommentFormTextColor() {
           -webkit-text-fill-color: #ffffff !important;
           text-shadow: none !important;
           caret-color: #ffffff !important;
+          transition: all 0.2s ease !important;
         }
         
         @keyframes keepWhiteText${uniqueId} {
@@ -793,6 +796,7 @@ function enforceCommentFormTextColor() {
       );
       input.style.setProperty("caret-color", "#ffffff", "important");
       input.style.setProperty("text-shadow", "none", "important");
+      input.style.setProperty("transition", "all 0.2s ease", "important");
 
       // Replace with a cloned element for maximum style enforcement
       const parent = input.parentNode;
@@ -815,6 +819,7 @@ function enforceCommentFormTextColor() {
         );
         newInput.style.setProperty("caret-color", "#ffffff", "important");
         newInput.style.setProperty("text-shadow", "none", "important");
+        newInput.style.setProperty("transition", "all 0.2s ease", "important");
 
         // Add event listeners
         newInput.addEventListener("input", function () {
@@ -885,7 +890,7 @@ function enforceCommentFormTextColor() {
 }
 
 /**
- * Forces white background on reply buttons
+ * Forces white background on reply buttons and more actions buttons
  * Uses multiple approaches to ensure buttons always have white background
  */
 function enforceReplyButtonStyles() {
@@ -894,108 +899,204 @@ function enforceReplyButtonStyles() {
     const replyButtons = document.querySelectorAll(
       ".commentItem__replyButton.sc-link-primary"
     );
-    if (!replyButtons || replyButtons.length === 0) return;
+    if (replyButtons && replyButtons.length > 0) {
+      // Process each button
+      replyButtons.forEach((button) => {
+        // Skip already processed buttons
+        if (button.hasAttribute("reply-button-fixed")) return;
 
-    // Process each button
-    replyButtons.forEach((button) => {
-      // Skip already processed buttons
-      if (button.hasAttribute("reply-button-fixed")) return;
+        // Generate unique ID
+        const uniqueId =
+          "sc-dark-btn-" + Math.random().toString(36).substr(2, 8);
+        button.id = uniqueId;
 
-      // Generate unique ID
-      const uniqueId = "sc-dark-btn-" + Math.random().toString(36).substr(2, 8);
-      button.id = uniqueId;
-
-      // Add custom stylesheet for this button
-      const styleEl = document.createElement("style");
-      styleEl.textContent = `
-        #${uniqueId} {
-          all: unset;
-          display: inline-block !important;
-          background-color: #ffffff !important;
-          color: #000000 !important;
-          -webkit-text-fill-color: #000000 !important;
-          text-shadow: none !important;
-          padding: 3px 10px !important;
-          border-radius: 12px !important;
-          cursor: pointer !important;
-          font-family: inherit !important;
-          font-size: inherit !important;
-          border: none !important;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
-          position: relative !important;
-        }
-        
-        #${uniqueId}:hover {
-          background-color: #f0f0f0 !important;
-        }
-        
-        @keyframes keepWhiteBg${uniqueId} {
-          0%, 100% { background-color: #ffffff !important; }
-        }
-        
-        #${uniqueId} {
-          animation: keepWhiteBg${uniqueId} 1ms infinite !important;
-        }
-      `;
-      document.head.appendChild(styleEl);
-
-      // Replace with a new element
-      const parent = button.parentNode;
-      if (parent) {
-        // Save original properties
-        const text = button.textContent || "Reply";
-        const href = button.getAttribute("href") || "#";
-        const clickHandler = button.onclick;
-
-        // Create new button
-        const newButton = document.createElement("a");
-        newButton.id = uniqueId;
-        newButton.className = button.className;
-        newButton.textContent = text;
-        newButton.href = href;
-
-        // Apply styles
-        newButton.style.cssText = `
-          all: unset;
-          display: inline-block !important;
-          background-color: #ffffff !important;
-          color: #000000 !important;
-          -webkit-text-fill-color: #000000 !important;
-          text-shadow: none !important;
-          padding: 3px 10px !important;
-          border-radius: 12px !important;
-          cursor: pointer !important;
-          font-family: inherit !important;
-          font-size: inherit !important;
-          border: none !important;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
-          margin: 0 !important;
-          text-decoration: none !important;
+        // Add custom stylesheet for this button
+        const styleEl = document.createElement("style");
+        styleEl.textContent = `
+          #${uniqueId} {
+            all: unset;
+            display: inline-block !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            text-shadow: none !important;
+            padding: 3px 14px 3px 10px !important; /* Extra padding on right */
+            border-radius: 8px !important; /* Squircle shape */
+            cursor: pointer !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            border: none !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+            position: relative !important;
+            transition: all 0.2s ease !important;
+          }
+          
+          #${uniqueId}:hover {
+            background-color: #f0f0f0 !important;
+            transition: all 0.2s ease !important;
+          }
+          
+          @keyframes keepWhiteBg${uniqueId} {
+            0%, 100% { background-color: #ffffff !important; }
+          }
+          
+          #${uniqueId} {
+            animation: keepWhiteBg${uniqueId} 1ms infinite !important;
+          }
         `;
+        document.head.appendChild(styleEl);
 
-        // Preserve original click handler
-        if (clickHandler) {
-          newButton.onclick = clickHandler;
+        // Replace with a new element
+        const parent = button.parentNode;
+        if (parent) {
+          // Save original properties
+          const text = button.textContent || "Reply";
+          const href = button.getAttribute("href") || "#";
+          const clickHandler = button.onclick;
+
+          // Create new button
+          const newButton = document.createElement("a");
+          newButton.id = uniqueId;
+          newButton.className = button.className;
+          newButton.textContent = text;
+          newButton.href = href;
+
+          // Apply styles
+          newButton.style.cssText = `
+            all: unset;
+            display: inline-block !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            text-shadow: none !important;
+            padding: 3px 14px 3px 10px !important; /* Extra padding on right */
+            border-radius: 8px !important; /* Squircle shape */
+            cursor: pointer !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            border: none !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+            margin: 0 !important;
+            text-decoration: none !important;
+            transition: all 0.2s ease !important;
+          `;
+
+          // Preserve original click handler
+          if (clickHandler) {
+            newButton.onclick = clickHandler;
+          }
+
+          // Add hover effects with transition
+          newButton.addEventListener("mouseenter", function () {
+            this.style.setProperty("background-color", "#f0f0f0", "important");
+            this.style.setProperty("transition", "all 0.2s ease", "important");
+          });
+
+          newButton.addEventListener("mouseleave", function () {
+            this.style.setProperty("background-color", "#ffffff", "important");
+            this.style.setProperty("transition", "all 0.2s ease", "important");
+          });
+
+          // Replace in DOM
+          parent.replaceChild(newButton, button);
+
+          // Mark as fixed
+          newButton.setAttribute("reply-button-fixed", "true");
+        } else {
+          // Apply styles to original if we can't replace
+          button.setAttribute("reply-button-fixed", "true");
+
+          button.style.cssText = `
+            all: unset;
+            display: inline-block !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            text-shadow: none !important;
+            padding: 3px 14px 3px 10px !important; /* Extra padding on right */
+            border-radius: 8px !important; /* Squircle shape */
+            cursor: pointer !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            border: none !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+            margin: 0 !important;
+            text-decoration: none !important;
+            transition: all 0.2s ease !important;
+          `;
+
+          button.addEventListener("mouseenter", function () {
+            this.style.setProperty("background-color", "#f0f0f0", "important");
+            this.style.setProperty("transition", "all 0.2s ease", "important");
+          });
+
+          button.addEventListener("mouseleave", function () {
+            this.style.setProperty("background-color", "#ffffff", "important");
+            this.style.setProperty("transition", "all 0.2s ease", "important");
+          });
         }
+      });
+    }
 
-        // Add hover effects
-        newButton.addEventListener("mouseenter", function () {
-          this.style.setProperty("background-color", "#f0f0f0", "important");
-        });
+    // Find all More Actions buttons
+    const moreButtons = document.querySelectorAll(
+      ".commentItem__moreActionsButton"
+    );
+    if (moreButtons && moreButtons.length > 0) {
+      // Process each more actions button
+      moreButtons.forEach((button) => {
+        // Skip already processed buttons
+        if (button.hasAttribute("more-button-fixed")) return;
 
-        newButton.addEventListener("mouseleave", function () {
-          this.style.setProperty("background-color", "#ffffff", "important");
-        });
+        // Generate unique ID
+        const uniqueId =
+          "sc-dark-more-" + Math.random().toString(36).substr(2, 8);
+        button.id = uniqueId;
 
-        // Replace in DOM
-        parent.replaceChild(newButton, button);
+        // Add custom stylesheet for this button
+        const styleEl = document.createElement("style");
+        styleEl.textContent = `
+          #${uniqueId} {
+            all: unset;
+            display: inline-block !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            text-shadow: none !important;
+            padding: 3px 7px !important;
+            border-radius: 8px !important; /* Squircle shape */
+            cursor: pointer !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            border: none !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+            position: relative !important;
+            transition: all 0.2s ease !important;
+          }
+          
+          #${uniqueId}:hover {
+            background-color: #f0f0f0 !important;
+            transition: all 0.2s ease !important;
+          }
+          
+          #${uniqueId}:before,
+          #${uniqueId} svg,
+          #${uniqueId} img {
+            filter: brightness(0) !important; /* Make icon black */
+            transition: all 0.2s ease !important;
+          }
+          
+          @keyframes keepWhiteBg${uniqueId} {
+            0%, 100% { background-color: #ffffff !important; }
+          }
+          
+          #${uniqueId} {
+            animation: keepWhiteBg${uniqueId} 1ms infinite !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
 
-        // Mark as fixed
-        newButton.setAttribute("reply-button-fixed", "true");
-      } else {
-        // Apply styles to original if we can't replace
-        button.setAttribute("reply-button-fixed", "true");
-
+        // Apply styles to the button
         button.style.cssText = `
           all: unset;
           display: inline-block !important;
@@ -1003,30 +1104,43 @@ function enforceReplyButtonStyles() {
           color: #000000 !important;
           -webkit-text-fill-color: #000000 !important;
           text-shadow: none !important;
-          padding: 3px 10px !important;
-          border-radius: 12px !important;
+          padding: 3px 7px !important;
+          border-radius: 8px !important; /* Squircle shape */
           cursor: pointer !important;
           font-family: inherit !important;
           font-size: inherit !important;
           border: none !important;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
           margin: 0 !important;
-          text-decoration: none !important;
+          transition: all 0.2s ease !important;
         `;
 
+        // Style any icons inside the button
+        const icons = button.querySelectorAll("svg, img");
+        icons.forEach((icon) => {
+          icon.style.setProperty("filter", "brightness(0)", "important");
+          icon.style.setProperty("transition", "all 0.2s ease", "important");
+        });
+
+        // Add hover effects with transition
         button.addEventListener("mouseenter", function () {
           this.style.setProperty("background-color", "#f0f0f0", "important");
+          this.style.setProperty("transition", "all 0.2s ease", "important");
         });
 
         button.addEventListener("mouseleave", function () {
           this.style.setProperty("background-color", "#ffffff", "important");
+          this.style.setProperty("transition", "all 0.2s ease", "important");
         });
-      }
-    });
+
+        // Mark as fixed
+        button.setAttribute("more-button-fixed", "true");
+      });
+    }
 
     // Set up observer for dynamically added buttons
-    if (!window.replyButtonObserver) {
-      window.replyButtonObserver = new MutationObserver((mutations) => {
+    if (!window.buttonObserver) {
+      window.buttonObserver = new MutationObserver((mutations) => {
         let hasNewButtons = false;
 
         mutations.forEach((mutation) => {
@@ -1036,11 +1150,15 @@ function enforceReplyButtonStyles() {
               if (
                 node.nodeType === 1 &&
                 ((node.classList &&
-                  node.classList.contains("commentItem__replyButton")) ||
+                  (node.classList.contains("commentItem__replyButton") ||
+                    node.classList.contains(
+                      "commentItem__moreActionsButton"
+                    ))) ||
                   (node.querySelector &&
-                    node.querySelector(
+                    (node.querySelector(
                       ".commentItem__replyButton.sc-link-primary"
-                    )))
+                    ) ||
+                      node.querySelector(".commentItem__moreActionsButton"))))
               ) {
                 hasNewButtons = true;
                 break;
@@ -1054,12 +1172,53 @@ function enforceReplyButtonStyles() {
         }
       });
 
-      window.replyButtonObserver.observe(document.body, {
+      window.buttonObserver.observe(document.body, {
         childList: true,
         subtree: true,
       });
     }
   } catch (e) {
-    console.error("Error enforcing reply button styles:", e);
+    console.error("Error enforcing button styles:", e);
+  }
+}
+
+// Add a global function to apply transitions to any new elements added to the DOM
+function applyGlobalTransitions() {
+  try {
+    // Target all interactive elements
+    const interactiveElements = document.querySelectorAll(
+      'a, button, .sc-button, .sc-link-primary, .sc-link-secondary, input, select, textarea, [role="button"], [tabindex="0"], .commentItem__replyButton, .commentItem__moreActionsButton, .commentItem__usernameLink'
+    );
+
+    interactiveElements.forEach((el) => {
+      if (!el.hasAttribute("transition-applied")) {
+        el.style.setProperty("transition", "all 0.2s ease", "important");
+        el.setAttribute("transition-applied", "true");
+      }
+    });
+
+    // Set up observer for dynamic elements
+    if (!window.transitionObserver) {
+      window.transitionObserver = new MutationObserver((mutations) => {
+        let hasNewElements = false;
+
+        mutations.forEach((mutation) => {
+          if (mutation.addedNodes && mutation.addedNodes.length) {
+            hasNewElements = true;
+          }
+        });
+
+        if (hasNewElements) {
+          applyGlobalTransitions();
+        }
+      });
+
+      window.transitionObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    }
+  } catch (e) {
+    console.error("Error applying global transitions:", e);
   }
 }

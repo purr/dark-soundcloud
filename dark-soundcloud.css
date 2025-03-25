@@ -25,6 +25,7 @@
 
 :root.jtc-sc-dark {
   color-scheme: dark;
+  --transition-duration: 0.2s;
 }
 
 body {
@@ -969,7 +970,7 @@ html body .sc-classic a.commentItem__usernameLink.sc-link-primary {
   text-shadow: none !important;
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
   text-decoration: none !important;
-  transition: opacity 0.2s ease-in-out !important;
+  transition: all var(--transition-duration) ease !important;
   background-color: var(--jtc-sc-border) !important;
   padding: 2px 4px !important;
   border-radius: 3px !important;
@@ -1215,7 +1216,7 @@ input.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder,
   -webkit-text-fill-color: #000000 !important;
   padding: 3px 7px !important;
   border-radius: 12px !important;
-  transition: background-color 0.2s ease !important;
+  transition: all var(--transition-duration) ease !important;
   text-decoration: none !important;
   display: inline-block !important;
 }
@@ -1320,7 +1321,7 @@ html body textarea.commentForm__input,
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
   padding: 3px 8px !important;
   border-radius: 4px !important;
-  transition: background-color 0.2s ease !important;
+  transition: all var(--transition-duration) ease !important;
   text-decoration: none !important;
   display: inline-block !important;
 }
@@ -1351,9 +1352,9 @@ a.commentItem__replyButton.sc-link-primary:not(.custom-class) {
   color: #000000 !important;
   text-shadow: none !important;
   -webkit-text-fill-color: #000000 !important;
-  padding: 3px 8px !important;
-  border-radius: 12px !important;
-  transition: background-color 0.2s ease !important;
+  padding: 3px 14px 3px 10px !important;
+  border-radius: 8px !important;
+  transition: all var(--transition-duration) ease !important;
   text-decoration: none !important;
   display: inline-block !important;
   border: none !important;
@@ -1370,9 +1371,7 @@ a.commentItem__replyButton.sc-link-primary:hover,
 html .sc-classic .commentItem__replyButton.sc-link-primary:hover,
 html .sc-classic a.commentItem__replyButton.sc-link-primary:hover,
 body .sc-classic .commentItem__replyButton.sc-link-primary:hover,
-body .sc-classic a.commentItem__replyButton.sc-link-primary:hover,
-html body .sc-classic .commentItem__replyButton.sc-link-primary:hover,
-html body .sc-classic a.commentItem__replyButton.sc-link-primary:hover {
+body .sc-classic a.commentItem__replyButton.sc-link-primary:hover {
   background-color: #f0f0f0 !important;
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
@@ -1491,8 +1490,8 @@ html:not(#fake)
   -webkit-text-fill-color: #000000 !important;
   text-shadow: none !important;
   -webkit-text-stroke: 0 !important;
-  padding: 3px 10px !important;
-  border-radius: 12px !important;
+  padding: 3px 14px 3px 10px !important; /* Extra padding on the right */
+  border-radius: 8px !important; /* More squircle-like, less circular */
   margin: 0 !important;
   cursor: pointer !important;
   font-family: inherit !important;
@@ -1500,7 +1499,144 @@ html:not(#fake)
   line-height: inherit !important;
   border: none !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
-  transition: background-color 0.2s ease !important;
+  transition: all var(--transition-duration) ease !important;
   animation: keepWhiteBackground 1ms infinite !important;
   position: relative !important;
+}
+
+/* ███ NUCLEAR OPTION ███ - MORE ACTIONS BUTTON STYLE */
+@keyframes keepWhiteBackground2 {
+  0% {
+    background-color: #ffffff !important;
+  }
+  100% {
+    background-color: #ffffff !important;
+  }
+}
+
+.commentItem__moreActionsButton,
+.commentItem__moreActionsButton.sc-button,
+.commentItem__moreActionsButton.sc-button-medium,
+.commentItem__moreActionsButton.sc-button-icon,
+.commentItem__moreActionsButton.sc-button-responsive,
+html body .commentItem__moreActionsButton,
+html body .commentItem__moreActionsButton.sc-button,
+.sc-classic .commentItem__moreActionsButton,
+.sc-classic .commentItem__moreActionsButton.sc-button,
+button.commentItem__moreActionsButton,
+.commentItem__moreActionsButton:not([disabled]),
+.commentItem__moreActionsButton.sc-button:not([disabled]),
+html:not(#fake)
+  body:not(#fake)
+  button.commentItem__moreActionsButton:not(#fake) {
+  all: unset;
+  display: inline-block !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  text-shadow: none !important;
+  padding: 3px 7px !important;
+  border-radius: 8px !important; /* Same squircle shape as reply button */
+  margin: 0 !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+  transition: all var(--transition-duration) ease !important;
+  animation: keepWhiteBackground2 1ms infinite !important;
+  position: relative !important;
+}
+
+/* Style the more button hover and active states */
+.commentItem__moreActionsButton:hover,
+.commentItem__moreActionsButton.sc-button:hover,
+.commentItem__moreActionsButton:active,
+.commentItem__moreActionsButton.sc-button:active,
+.commentItem__moreActionsButton:focus,
+.commentItem__moreActionsButton.sc-button:focus {
+  background-color: #f0f0f0 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Make sure the icon inside the more button is properly styled */
+.commentItem__moreActionsButton:before,
+.commentItem__moreActionsButton.sc-button:before,
+.commentItem__moreActionsButton svg,
+.commentItem__moreActionsButton.sc-button svg,
+.commentItem__moreActionsButton img,
+.commentItem__moreActionsButton.sc-button img {
+  filter: brightness(0) !important; /* Make icon black */
+}
+
+/* Add global hover transitions to interactive elements */
+:root.jtc-sc-dark a,
+:root.jtc-sc-dark button,
+:root.jtc-sc-dark .sc-button,
+:root.jtc-sc-dark .sc-link-primary,
+:root.jtc-sc-dark .sc-link-secondary,
+:root.jtc-sc-dark input,
+:root.jtc-sc-dark select,
+:root.jtc-sc-dark textarea,
+:root.jtc-sc-dark [role="button"],
+:root.jtc-sc-dark [tabindex="0"],
+:root.jtc-sc-dark .commentItem__replyButton,
+:root.jtc-sc-dark .commentItem__moreActionsButton,
+:root.jtc-sc-dark .commentItem__usernameLink {
+  transition: all var(--transition-duration) ease !important;
+}
+
+/* Update transition for more actions button */
+.commentItem__moreActionsButton,
+.commentItem__moreActionsButton:not([disabled]),
+html body .commentItem__moreActionsButton,
+.sc-classic .commentItem__moreActionsButton,
+html .sc-classic .commentItem__moreActionsButton,
+body .sc-classic .commentItem__moreActionsButton,
+html body .sc-classic .commentItem__moreActionsButton {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: #000000 !important;
+  padding: 3px 7px !important;
+  border-radius: 8px !important;
+  transition: all var(--transition-duration) ease !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Update transitions for username links */
+.commentItem__usernameLink,
+.commentItem__usernameLink:hover,
+.commentItem__usernameLink:visited,
+.commentItem__usernameLink:link,
+.commentItem__usernameLink:active,
+a.commentItem__usernameLink,
+a.commentItem__usernameLink:hover,
+a.commentItem__usernameLink:visited,
+a.commentItem__usernameLink:link,
+a.commentItem__usernameLink:active,
+.commentItem__usernameLink.sc-link-primary,
+.commentItem__usernameLink.sc-link-primary:hover,
+.commentItem__usernameLink.sc-link-primary:visited,
+.commentItem__usernameLink.sc-link-primary:link,
+.commentItem__usernameLink.sc-link-primary:active {
+  transition: all var(--transition-duration) ease !important;
+}
+
+/* Add universal hover effect for all SC buttons */
+.sc-button:not(.sc-button-disabled):not(:disabled):hover,
+.sc-button:not(.sc-button-disabled):not(:disabled):active,
+.sc-button:not(.sc-button-disabled):not(:disabled):focus {
+  transition: all var(--transition-duration) ease !important;
+}
+
+/* Update hover transitions for tags */
+.sc-tag:hover,
+.sc-tag-small:hover {
+  transition: all var(--transition-duration) ease !important;
 }
