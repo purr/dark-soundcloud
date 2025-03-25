@@ -1242,3 +1242,35 @@ input.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder,
   background-color: var(--jtc-sc-header-search) !important;
   border-color: var(--jtc-sc-border) !important;
 }
+
+/* Make comment form input text white */
+.sc-classic .commentForm .commentForm__input,
+.sc-classic .commentForm__input,
+.commentForm__input {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
+/* Improved styling for comment reply buttons with grey background and rounded corners */
+.sc-classic .commentItem__replyButton,
+.sc-classic .commentItem__replyButton:hover,
+.sc-classic .commentItem__replyButton:visited,
+.commentItem__replyButton,
+.commentItem__replyButton:hover,
+.commentItem__replyButton:visited {
+  background-color: var(--jtc-sc-tag-bg) !important;
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  transition: background-color 0.2s ease !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+}
+
+.sc-classic .commentItem__replyButton:hover,
+.commentItem__replyButton:hover {
+  background-color: var(--jtc-sc-tag-hover-bg) !important;
+}
