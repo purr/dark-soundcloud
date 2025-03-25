@@ -1244,15 +1244,6 @@ input.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder,
   border-color: var(--jtc-sc-border) !important;
 }
 
-/* Make comment form input text white */
-.sc-classic .commentForm .commentForm__input,
-.sc-classic .commentForm__input,
-.commentForm__input {
-  color: var(--jtc-sc-root-text) !important;
-  text-shadow: none !important;
-  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
-}
-
 /* Enhanced specificity for comment form input to ensure white text */
 .sc-classic .commentForm .commentForm__input,
 html body .sc-classic .commentForm .commentForm__input,
@@ -1267,6 +1258,34 @@ div.commentForm__inputWrapper .commentForm__input,
   text-shadow: none !important;
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
   caret-color: var(--jtc-sc-root-text) !important;
+}
+
+/* SUPER AGGRESSIVE FIX FOR COMMENT FORM INPUT TEXT COLOR - ALWAYS WHITE */
+html body .commentForm__input,
+.commentForm__input,
+input.commentForm__input,
+textarea.commentForm__input,
+.sc-classic input.commentForm__input,
+.sc-classic textarea.commentForm__input,
+html body input.commentForm__input,
+html body textarea.commentForm__input,
+.commentForm__wrapper .commentForm__input,
+.commentForm__inputWrapper .commentForm__input,
+.focused .commentForm__input,
+.sc-classic .focused .commentForm__input,
+.sc-classic div.commentForm__wrapper .commentForm__input,
+.sc-classic div.commentForm__inputWrapper .commentForm__input,
+.sc-classic .commentForm__wrapper .commentForm__input[value],
+.sc-classic .commentForm__inputWrapper .commentForm__input[value],
+.commentForm__wrapper .commentForm__input:not([disabled]),
+.commentForm__inputWrapper .commentForm__input:not([disabled]),
+.sc-classic .commentForm__wrapper .commentForm__input:not([disabled]),
+.sc-classic .commentForm__inputWrapper .commentForm__input:not([disabled]) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+  caret-color: #ffffff !important;
+  background-color: transparent !important;
 }
 
 /* Handle focus and active states */
@@ -1309,4 +1328,65 @@ div.commentForm__inputWrapper .commentForm__input,
 .sc-classic .commentItem__replyButton:hover,
 .commentItem__replyButton:hover {
   background-color: var(--jtc-sc-tag-hover-bg) !important;
+}
+
+/* SUPER AGGRESSIVE REPLY BUTTON FIX - ALWAYS WHITE BACKGROUND */
+html body .commentItem__replyButton.sc-link-primary,
+html body a.commentItem__replyButton.sc-link-primary,
+.commentItem__replyButton.sc-link-primary,
+a.commentItem__replyButton.sc-link-primary,
+.sc-classic .commentItem__replyButton.sc-link-primary,
+.sc-classic a.commentItem__replyButton.sc-link-primary,
+html .sc-classic .commentItem__replyButton.sc-link-primary,
+html .sc-classic a.commentItem__replyButton.sc-link-primary,
+body .sc-classic .commentItem__replyButton.sc-link-primary,
+body .sc-classic a.commentItem__replyButton.sc-link-primary,
+html body .sc-classic .commentItem__replyButton.sc-link-primary,
+html body .sc-classic a.commentItem__replyButton.sc-link-primary,
+.commentItem__replyButton.sc-link-primary:not([disabled]),
+a.commentItem__replyButton.sc-link-primary:not([disabled]),
+.commentItem__replyButton.sc-link-primary:not(.custom-class),
+a.commentItem__replyButton.sc-link-primary:not(.custom-class) {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: #000000 !important;
+  padding: 3px 8px !important;
+  border-radius: 12px !important;
+  transition: background-color 0.2s ease !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Hover state for super aggressive reply button */
+html body .commentItem__replyButton.sc-link-primary:hover,
+html body a.commentItem__replyButton.sc-link-primary:hover,
+.commentItem__replyButton.sc-link-primary:hover,
+a.commentItem__replyButton.sc-link-primary:hover,
+.sc-classic .commentItem__replyButton.sc-link-primary:hover,
+.sc-classic a.commentItem__replyButton.sc-link-primary:hover,
+html .sc-classic .commentItem__replyButton.sc-link-primary:hover,
+html .sc-classic a.commentItem__replyButton.sc-link-primary:hover,
+body .sc-classic .commentItem__replyButton.sc-link-primary:hover,
+body .sc-classic a.commentItem__replyButton.sc-link-primary:hover,
+html body .sc-classic .commentItem__replyButton.sc-link-primary:hover,
+html body .sc-classic a.commentItem__replyButton.sc-link-primary:hover {
+  background-color: #f0f0f0 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Also handle active/focus states */
+html body .commentItem__replyButton.sc-link-primary:active,
+html body .commentItem__replyButton.sc-link-primary:focus,
+.commentItem__replyButton.sc-link-primary:active,
+.commentItem__replyButton.sc-link-primary:focus,
+.sc-classic .commentItem__replyButton.sc-link-primary:active,
+.sc-classic .commentItem__replyButton.sc-link-primary:focus {
+  background-color: #f0f0f0 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  outline: none !important;
 }

@@ -187,6 +187,10 @@
     // Enforce username link styling
     enforceUsernameLinks();
 
+    // Apply super aggressive fixes for comment input text and reply buttons
+    enforceCommentFormTextColor();
+    enforceReplyButtonStyles();
+
     // Hide unwanted iframes
     removeUnwantedIframes();
   }
@@ -724,3 +728,172 @@
   // Start the script
   initialize();
 })();
+
+// New function to force white text in comment form input
+function enforceCommentFormTextColor() {
+  try {
+    // Find all comment form inputs
+    const commentInputs = document.querySelectorAll(".commentForm__input");
+
+    if (!commentInputs.length) return;
+
+    commentInputs.forEach((input) => {
+      if (!input.hasAttribute("comment-text-fixed")) {
+        // Apply direct inline styles with !important
+        input.style.setProperty("color", "#ffffff", "important");
+        input.style.setProperty("text-shadow", "none", "important");
+        input.style.setProperty(
+          "-webkit-text-fill-color",
+          "#ffffff",
+          "important"
+        );
+        input.style.setProperty("caret-color", "#ffffff", "important");
+
+        // Mark as fixed
+        input.setAttribute("comment-text-fixed", "true");
+
+        // Add input event listener to ensure text stays white while typing
+        input.addEventListener("input", function () {
+          this.style.setProperty("color", "#ffffff", "important");
+          this.style.setProperty(
+            "-webkit-text-fill-color",
+            "#ffffff",
+            "important"
+          );
+        });
+
+        // Also handle focus events
+        input.addEventListener("focus", function () {
+          this.style.setProperty("color", "#ffffff", "important");
+          this.style.setProperty(
+            "-webkit-text-fill-color",
+            "#ffffff",
+            "important"
+          );
+        });
+      }
+    });
+
+    // Create a MutationObserver to watch for new comment inputs
+    if (!window.commentInputObserver) {
+      window.commentInputObserver = new MutationObserver((mutations) => {
+        let newInputs = false;
+
+        mutations.forEach((mutation) => {
+          if (mutation.addedNodes && mutation.addedNodes.length) {
+            for (let i = 0; i < mutation.addedNodes.length; i++) {
+              const node = mutation.addedNodes[i];
+              if (
+                node.nodeType === 1 &&
+                ((node.classList &&
+                  node.classList.contains("commentForm__input")) ||
+                  (node.querySelector &&
+                    node.querySelector(".commentForm__input")))
+              ) {
+                newInputs = true;
+                break;
+              }
+            }
+          }
+        });
+
+        if (newInputs) {
+          enforceCommentFormTextColor();
+        }
+      });
+
+      window.commentInputObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    }
+  } catch (e) {
+    // Silent catch - continue with other operations
+  }
+}
+
+// New function to force white background on reply buttons
+function enforceReplyButtonStyles() {
+  try {
+    // Find all reply buttons
+    const replyButtons = document.querySelectorAll(
+      ".commentItem__replyButton.sc-link-primary"
+    );
+
+    if (!replyButtons.length) return;
+
+    replyButtons.forEach((button) => {
+      if (!button.hasAttribute("reply-button-fixed")) {
+        // Apply direct inline styles with !important
+        button.style.setProperty("background-color", "#ffffff", "important");
+        button.style.setProperty("color", "#000000", "important");
+        button.style.setProperty("text-shadow", "none", "important");
+        button.style.setProperty(
+          "-webkit-text-fill-color",
+          "#000000",
+          "important"
+        );
+        button.style.setProperty("padding", "3px 8px", "important");
+        button.style.setProperty("border-radius", "12px", "important");
+        button.style.setProperty("text-decoration", "none", "important");
+        button.style.setProperty("display", "inline-block", "important");
+        button.style.setProperty("border", "none", "important");
+        button.style.setProperty(
+          "box-shadow",
+          "0 1px 3px rgba(0, 0, 0, 0.1)",
+          "important"
+        );
+
+        // Mark as fixed
+        button.setAttribute("reply-button-fixed", "true");
+
+        // Add hover event listener
+        button.addEventListener("mouseenter", function () {
+          this.style.setProperty("background-color", "#f0f0f0", "important");
+        });
+
+        button.addEventListener("mouseleave", function () {
+          this.style.setProperty("background-color", "#ffffff", "important");
+        });
+      }
+    });
+
+    // Create a MutationObserver to watch for new reply buttons
+    if (!window.replyButtonObserver) {
+      window.replyButtonObserver = new MutationObserver((mutations) => {
+        let newButtons = false;
+
+        mutations.forEach((mutation) => {
+          if (mutation.addedNodes && mutation.addedNodes.length) {
+            for (let i = 0; i < mutation.addedNodes.length; i++) {
+              const node = mutation.addedNodes[i];
+              if (
+                node.nodeType === 1 &&
+                ((node.classList &&
+                  node.classList.contains("commentItem__replyButton")) ||
+                  (node.querySelector &&
+                    node.querySelector(
+                      ".commentItem__replyButton.sc-link-primary"
+                    )))
+              ) {
+                newButtons = true;
+                break;
+              }
+            }
+          }
+        });
+
+        if (newButtons) {
+          enforceReplyButtonStyles();
+        }
+      });
+
+      window.replyButtonObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    }
+  } catch (e) {
+    // Silent catch - continue with other operations
+  }
+}
