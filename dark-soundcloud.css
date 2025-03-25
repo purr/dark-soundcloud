@@ -1203,3 +1203,42 @@ input.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder,
 .sc-button-like.sc-button-selected:before {
   filter: brightness(0) grayscale(1) !important;
 }
+
+/* Style the comment reply button with grey background and white text */
+.commentItem__replyButton.sc-link-primary,
+.commentItem__replyButton.sc-link-primary:hover,
+.commentItem__replyButton.sc-link-primary:focus,
+.commentItem__replyButton.sc-link-primary:active {
+  background-color: var(--jtc-sc-tag-bg) !important;
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+  padding: 3px 7px !important;
+  border-radius: 3px !important;
+  transition: background-color 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.commentItem__replyButton.sc-link-primary:hover {
+  background-color: var(--jtc-sc-tag-hover-bg) !important;
+}
+
+/* Ensure token input comment has white text */
+#tokenInput__comment,
+#tokenInput__comment input,
+#tokenInput__comment textarea,
+.tokenInput__wrapper input,
+.tokenInput__token,
+.tokenInput__token span,
+.tokenInput__token input {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
+/* Additional styling for token input field to ensure proper appearance in dark theme */
+.tokenInput__wrapper,
+.tokenInput__container {
+  background-color: var(--jtc-sc-header-search) !important;
+  border-color: var(--jtc-sc-border) !important;
+}
