@@ -1209,18 +1209,19 @@ input.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder,
 .commentItem__replyButton.sc-link-primary:hover,
 .commentItem__replyButton.sc-link-primary:focus,
 .commentItem__replyButton.sc-link-primary:active {
-  background-color: var(--jtc-sc-tag-bg) !important;
-  color: var(--jtc-sc-root-text) !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
   text-shadow: none !important;
-  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+  -webkit-text-fill-color: #000000 !important;
   padding: 3px 7px !important;
-  border-radius: 3px !important;
+  border-radius: 12px !important;
   transition: background-color 0.2s ease !important;
   text-decoration: none !important;
+  display: inline-block !important;
 }
 
 .commentItem__replyButton.sc-link-primary:hover {
-  background-color: var(--jtc-sc-tag-hover-bg) !important;
+  background-color: #f0f0f0 !important;
 }
 
 /* Ensure token input comment has white text */
@@ -1247,6 +1248,41 @@ input.textfield__input.sc-input.sc-input-medium::-ms-input-placeholder,
 .sc-classic .commentForm .commentForm__input,
 .sc-classic .commentForm__input,
 .commentForm__input {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
+/* Enhanced specificity for comment form input to ensure white text */
+.sc-classic .commentForm .commentForm__input,
+html body .sc-classic .commentForm .commentForm__input,
+.commentForm__input.sc-border-light,
+input.commentForm__input,
+textarea.commentForm__input,
+div.commentForm__inputWrapper .commentForm__input,
+.commentForm__wrapper .commentForm__input,
+.sc-classic .commentForm__inputWrapper .commentForm__input,
+.sc-classic .commentForm__wrapper .commentForm__input {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+  caret-color: var(--jtc-sc-root-text) !important;
+}
+
+/* Handle focus and active states */
+.sc-classic .commentForm .commentForm__input:focus,
+.sc-classic .commentForm .commentForm__input:active,
+.commentForm__input:focus,
+.commentForm__input:active {
+  color: var(--jtc-sc-root-text) !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
+}
+
+/* Ensure child elements inherit the text color */
+.sc-classic .commentForm .commentForm__input *,
+.sc-classic .commentForm__input *,
+.commentForm__input * {
   color: var(--jtc-sc-root-text) !important;
   text-shadow: none !important;
   -webkit-text-fill-color: var(--jtc-sc-root-text) !important;
