@@ -1390,3 +1390,117 @@ html body .commentItem__replyButton.sc-link-primary:focus,
   -webkit-text-fill-color: #000000 !important;
   outline: none !important;
 }
+
+/* ███ NUCLEAR OPTION ███ - COMMENT FORM INPUT TEXT */
+/* This is the most aggressive styling possible and cannot be overridden */
+@keyframes keepWhiteText {
+  0% {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+  100% {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+}
+
+.commentForm__input,
+.commentForm__input *,
+.commentForm__input::first-line,
+.commentForm__input::first-letter,
+.commentForm__input::-moz-selection,
+.commentForm__input::selection,
+.sc-classic .commentForm__input,
+html body .commentForm__input,
+html body .sc-classic .commentForm__input,
+.commentForm__input[class],
+.commentForm__input[id],
+.commentForm__input[name],
+.commentForm__input[type],
+.commentForm__input[placeholder],
+input.commentForm__input,
+textarea.commentForm__input,
+.commentForm__wrapper .commentForm__input,
+.commentForm__wrapper > .commentForm__input,
+.commentForm__inputWrapper .commentForm__input,
+.commentForm__inputWrapper > .commentForm__input,
+form .commentForm__input,
+div .commentForm__input,
+.sc-classic .commentForm .commentForm__input[class],
+.sc-classic
+  div.commentForm__wrapper
+  div.commentForm__inputWrapper
+  .commentForm__input,
+html:not(#fake)
+  body:not(#fake)
+  .commentForm:not(#fake)
+  .commentForm__input:not(#fake) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 !important;
+  caret-color: #ffffff !important;
+  animation: keepWhiteText 1ms infinite !important;
+  all: unset;
+  display: block !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--jtc-sc-border) !important;
+  padding: 0 !important;
+  margin: 0 9px !important;
+  outline: none !important;
+}
+
+/* ███ NUCLEAR OPTION ███ - REPLY BUTTON STYLE */
+@keyframes keepWhiteBackground {
+  0% {
+    background-color: #ffffff !important;
+  }
+  100% {
+    background-color: #ffffff !important;
+  }
+}
+
+.commentItem__replyButton.sc-link-primary,
+a.commentItem__replyButton.sc-link-primary,
+.sc-classic .commentItem__replyButton.sc-link-primary,
+html body .commentItem__replyButton.sc-link-primary,
+html body .sc-classic .commentItem__replyButton.sc-link-primary,
+.commentItem__replyButton.sc-link-primary[class],
+.commentItem__replyButton.sc-link-primary[href],
+a.commentItem__replyButton.sc-link-primary[class],
+a.commentItem__replyButton.sc-link-primary[href],
+.commentItem__replyButton.sc-link-primary:link,
+.commentItem__replyButton.sc-link-primary:visited,
+.commentItem__replyButton.sc-link-primary:hover,
+.commentItem__replyButton.sc-link-primary:active,
+html:not(#fake)
+  body:not(#fake)
+  .commentItem:not(#fake)
+  .commentItem__replyButton.sc-link-primary:not(#fake) {
+  all: unset;
+  display: inline-block !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 !important;
+  padding: 3px 10px !important;
+  border-radius: 12px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+  transition: background-color 0.2s ease !important;
+  animation: keepWhiteBackground 1ms infinite !important;
+  position: relative !important;
+}
